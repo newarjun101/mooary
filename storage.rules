@@ -1,0 +1,42 @@
+rules_version = '2';
+
+// Per-user rules, mirroring firestore.rules: a caller may only touch their own prefix.
+// Every path outside /users/{uid}/ is denied outright rather than left to a catch-all, so a
+// path built by a future caller with a missing or wrong segment fails closed.
+//
+// Two rules here are deliberately *not* expressed:
+//
+//   * Content type. The Storage emulator ignores the Content-Type header on the raw v0
+//     upload path and always records application/octet-stream, so an `image/.*` check can
+//     never be satisfied there and cannot be verified. It is also worth little here: the
+//     path is `users/{uid}/avatar` and the app chooses the name, so a caller cannot smuggle
+//     a type past it. Bytes are decoded and re-encoded by the client before upload.
+//   * File extension, for the same reason -- the name is ours, not the caller's.
+//
+// Ownership and the size ceiling are the two rules that matter, and both are enforced and
+// verified against the emulator. See AGENTS.md: rules are only enforced on the *v0* upload
+// path -- the v1 multipart endpoint bypasses them entirely, so never verify rules via v1.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      // Reads look at `resource` (the stored object) rather than `request.resource`, which
+      // is null on a read. Checking `request.resource` here would refuse every read of a
+      // perfectly valid photo.
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && withinSizeLimit();
+      allow delete: if isOwner(userId);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+
+  function isOwner(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+
+  function withinSizeLimit() {
+    return request.resource != null && request.resource.size < 5 * 1024 * 1024;
+  }
+}

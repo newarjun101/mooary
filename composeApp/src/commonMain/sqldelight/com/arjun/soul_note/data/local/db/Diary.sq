@@ -1,0 +1,230 @@
+-- Diary entries: the offline source of truth for the diary list, calendar and analytics.
+--
+-- Design notes:
+--   * `entry_date` is a `yyyy-MM-dd` string, not a Julian day number, so the value is
+--     byte-identical to the Firestore document and to the exported JSON/CSV.
+--   * `updated_at` is epoch milliseconds (UTC) and is the single field the deterministic
+--     conflict resolution compares.
+--   * `deleted_at` implements a tombstone: an offline delete must still reach the
+--     backend later, so the row survives locally until the server acknowledges it.
+--   * `sync_status` is the reconciliation state consumed by the sync manager.
+--   * `emotions_json`/`tags` are comma-joined id lists: with `Limits.EMOTIONS_MAX_COUNT`
+--     capped at 20 these are bounded, and a normalised join table would only add
+--     latency to the hot read path.
+
+CREATE TABLE diary_entries (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    user_id       TEXT    NOT NULL,
+    title         TEXT    NOT NULL,
+    content       TEXT    NOT NULL,
+    entry_date    TEXT    NOT NULL,
+    mood_id       TEXT    NOT NULL,
+    mood_score    INTEGER NOT NULL,
+    emotions_json TEXT    NOT NULL DEFAULT '[]',
+    tags          TEXT    NOT NULL DEFAULT '',
+    is_favorite   INTEGER NOT NULL DEFAULT 0,
+    location      TEXT,
+    weather       TEXT,
+    word_count    INTEGER NOT NULL DEFAULT 0,
+    created_at    INTEGER NOT NULL,
+    updated_at    INTEGER NOT NULL,
+    deleted_at    INTEGER,
+    sync_status   TEXT    NOT NULL DEFAULT 'SYNCED'
+);
+
+CREATE INDEX diary_entries_user_date ON diary_entries(user_id, entry_date DESC);
+CREATE INDEX diary_entries_user_updated ON diary_entries(user_id, updated_at DESC);
+CREATE INDEX diary_entries_user_favorite ON diary_entries(user_id, is_favorite, entry_date DESC);
+CREATE INDEX diary_entries_user_mood ON diary_entries(user_id, mood_id, entry_date DESC);
+CREATE INDEX diary_entries_user_sync ON diary_entries(user_id, sync_status);
+CREATE INDEX diary_entries_pending ON diary_entries(sync_status, updated_at) WHERE deleted_at IS NULL;
+
+CREATE VIEW diary_entries_visible AS
+    SELECT * FROM diary_entries
+    WHERE deleted_at IS NULL AND sync_status != 'PENDING_DELETE';
+
+-- The UI opens the diary on the favourites tab, so a partial index keeps that query off
+-- the main table scan.
+CREATE INDEX diary_entries_favorites_only ON diary_entries(user_id, entry_date DESC, created_at DESC)
+    WHERE is_favorite = 1 AND deleted_at IS NULL;
+
+-- `OR REPLACE`, not a bare INSERT: every writer of this table goes through
+-- `LocalStore.upsertDiary`, and a bare INSERT throws SQLITE_CONSTRAINT_PRIMARYKEY the second
+-- time the same id is written. That is not hypothetical -- demo seeding deliberately re-runs
+-- with stable ids, and it crashed the app on every second launch before this.
+--
+-- Safe here because the statement names all 17 columns: `OR REPLACE` deletes the conflicting
+-- row before inserting, so an omitted column would silently reset to its default on every
+-- update. No foreign keys reference this table, so that delete cascades to nothing.
+insertOrReplace:
+INSERT OR REPLACE INTO diary_entries(
+    id, user_id, title, content, entry_date, mood_id, mood_score, emotions_json, tags,
+    is_favorite, location, weather, word_count, created_at, updated_at, deleted_at, sync_status
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+);
+
+update:
+UPDATE diary_entries SET
+    title = :title,
+    content = :content,
+    entry_date = :entryDate,
+    mood_id = :moodId,
+    mood_score = :moodScore,
+    emotions_json = :emotionsJson,
+    tags = :tags,
+    is_favorite = :isFavorite,
+    location = :location,
+    weather = :weather,
+    word_count = :wordCount,
+    updated_at = :updatedAt,
+    deleted_at = :deletedAt,
+    sync_status = :syncStatus
+WHERE id = :id AND user_id = :userId;
+
+delete:
+DELETE FROM diary_entries WHERE id = :id AND user_id = :userId;
+
+selectById:
+SELECT * FROM diary_entries WHERE id = :id AND user_id = :userId;
+
+-- Paged read for the diary list. `LIMIT -1 OFFSET 0` returns everything, which the
+-- export path uses; the list screen always passes a bounded limit.
+selectVisiblePage:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY entry_date DESC, created_at DESC
+LIMIT :limit OFFSET :offset;
+
+-- The unfiltered read behind the list, the calendar and the analytics. Ordering must stay
+-- identical to selectVisiblePage: both are "newest first", and the list screen swaps
+-- between them depending on whether a filter is active, so a difference here would reorder
+-- rows on the very next emission.
+selectVisible:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY entry_date DESC, created_at DESC;
+
+-- Bounded newest-first read. Deliberately not a paged query: every caller asks for "the
+-- most recent N" and none of them ever read a second page.
+selectRecent:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY entry_date DESC, created_at DESC
+LIMIT :limit;
+
+selectFavorites:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND is_favorite = 1
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY entry_date DESC, created_at DESC;
+
+selectForDate:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND entry_date = :date
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY created_at DESC;
+
+selectInRange:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND entry_date >= :from AND entry_date <= :to
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY entry_date DESC, created_at DESC;
+
+-- Per-day roll-up for the calendar grid: one grouped query instead of one count per cell.
+countsByDate:
+SELECT entry_date, count(*) AS entry_count FROM diary_entries
+WHERE user_id = :userId
+  AND entry_date >= :from AND entry_date <= :to
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+GROUP BY entry_date
+ORDER BY entry_date;
+
+-- Free-text search. `tags` and `emotions_json` are searched as raw text rather than via a
+-- join table or json_each(): JSON1 is not guaranteed to be compiled into every driver this
+-- project runs on (Android framework SQLite and the desktop driver differ), and the columns
+-- are bounded lists that match as substrings without false negatives for the id shapes
+-- actually stored here.
+search:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+  AND (
+    lower(title)   LIKE '%' || lower(:query) || '%'
+    OR lower(content) LIKE '%' || lower(:query) || '%'
+    OR lower(tags) LIKE '%' || lower(:query) || '%'
+    OR lower(emotions_json) LIKE '%' || lower(:query) || '%'
+  )
+ORDER BY entry_date DESC, created_at DESC
+LIMIT :limit;
+
+-- Returns the raw tag column rather than whole rows because the caller decodes and dedupes
+-- it in Kotlin (Mappers.decodeTags). Emitting the column alone keeps the projection honest
+-- and avoids materialising content the tag picker never reads.
+distinctTags:
+SELECT DISTINCT tags FROM diary_entries
+WHERE user_id = :userId
+  AND tags != ''
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+countVisible:
+SELECT count(*) FROM diary_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+countFavorites:
+SELECT count(*) FROM diary_entries
+WHERE user_id = :userId
+  AND is_favorite = 1
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+countInRange:
+SELECT count(*) FROM diary_entries
+WHERE user_id = :userId
+  AND entry_date >= :from AND entry_date <= :to
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+-- --------------------------------------------------------------------------- sync
+
+-- Everything not yet settled locally, across all users: the sync manager filters these by
+-- sync_status itself (deletes first, then writes), so this must not pre-partition them.
+selectPending:
+SELECT * FROM diary_entries
+WHERE sync_status != 'SYNCED'
+ORDER BY updated_at;
+
+-- Incremental push. Includes tombstones and SYNCED rows on purpose: the caller wants
+-- everything that moved since the watermark, and narrowing it here would silently drop a
+-- delete that the backend has not acknowledged yet.
+selectSince:
+SELECT * FROM diary_entries
+WHERE user_id = :userId
+  AND updated_at > :since
+ORDER BY updated_at;
+
+countPending:
+SELECT count(*) FROM diary_entries WHERE sync_status != 'SYNCED';
+
+countConflicts:
+SELECT count(*) FROM diary_entries WHERE sync_status = 'CONFLICT';
+
+deleteAllForUser:
+DELETE FROM diary_entries WHERE user_id = :userId;

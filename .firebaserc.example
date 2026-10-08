@@ -1,0 +1,12 @@
+{
+  "//": [
+    "Copy this file to `.firebaserc` and set `projectId` to your own Firebase project.",
+    "`.firebaserc` is git-ignored, so each developer targets their own project by default and",
+    "two people cannot accidentally deploy to the same backend.",
+    "",
+    "Prefer `firebase use --add` over editing this by hand; the CLI writes the same shape."
+  ],
+  "projects": {
+    "default": "your-firebase-project-id"
+  }
+}

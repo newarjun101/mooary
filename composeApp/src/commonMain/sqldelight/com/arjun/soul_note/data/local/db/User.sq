@@ -1,0 +1,62 @@
+-- The private `users/{userId}` profile document, mirrored locally so the dashboard
+-- greeting and the export header render instantly and offline.
+
+CREATE TABLE user_profiles (
+    id           TEXT    NOT NULL PRIMARY KEY,
+    email        TEXT    NOT NULL,
+    display_name TEXT,
+    photo_url    TEXT,
+    created_at   INTEGER NOT NULL,
+    updated_at   INTEGER NOT NULL
+);
+
+insert:
+-- `OR REPLACE`, matching `diary_entries` and `mood_entries`. The first sync pull
+-- re-applies the profile that sign-up already stored locally, and a bare INSERT
+-- throws SQLITE_CONSTRAINT_PRIMARYKEY on that second write, which aborts the whole
+-- pull. Nothing references `user_profiles` by foreign key, so replacing the row
+-- cannot cascade into drafts.
+INSERT OR REPLACE INTO user_profiles(id, email, display_name, photo_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE user_profiles SET
+    email = :email,
+    display_name = :displayName,
+    photo_url = :photoUrl,
+    updated_at = :updatedAt
+WHERE id = :id;
+
+selectById:
+SELECT * FROM user_profiles WHERE id = :id;
+
+selectPending:
+SELECT * FROM user_profiles WHERE id = :id;
+
+deleteById:
+DELETE FROM user_profiles WHERE id = :id;
+
+-- Autosaved writing state, keyed by user so switching accounts can never leak a draft.
+-- A single-row-per-user design keeps the write on every keystroke a cheap primary-key
+-- upsert.
+CREATE TABLE drafts (
+    user_id       TEXT    NOT NULL PRIMARY KEY,
+    entry_id      TEXT,
+    title         TEXT    NOT NULL DEFAULT '',
+    content       TEXT    NOT NULL DEFAULT '',
+    entry_date    TEXT    NOT NULL,
+    mood_id       TEXT    NOT NULL DEFAULT 'neutral',
+    emotions_json TEXT    NOT NULL DEFAULT '[]',
+    tags          TEXT    NOT NULL DEFAULT '',
+    updated_at    INTEGER NOT NULL
+);
+
+upsertDraft:
+INSERT OR REPLACE INTO drafts(user_id, entry_id, title, content, entry_date, mood_id, emotions_json, tags, updated_at)
+VALUES (:userId, :entryId, :title, :content, :entryDate, :moodId, :emotionsJson, :tags, :updatedAt);
+
+selectDraft:
+SELECT * FROM drafts WHERE user_id = :userId;
+
+deleteDraft:
+DELETE FROM drafts WHERE user_id = :userId;

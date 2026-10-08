@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Burmese (my-MM).
+
+      Every key in the default `values/strings.xml` is translated here, including the emoji
+      scales and the "%1$s %2$s" pass-throughs, which are identical by definition. A missing
+      key would silently fall back to English, so `BurmeseStringsTest` compares the two files
+      key for key and also checks that the format specifiers match.
+
+      Digits stay Latin. Burmese conventionally writes Myanmar digits, but every count in this
+      app reaches the string through `%1$d`, which formats with the platform's default
+      numbering. Rendering Myanmar digits would mean converting numbers before substitution
+      across the whole app; the mixing that causes is why this is deliberately uniform for
+      now rather than half-converted.
+    -->
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">အန်းချုပ်</string>
+    <string name="app_name">SoulNote</string>
+    <string name="nav_diary">နောက်တွဲ</string>
+    <string name="nav_mood">ခံစားချက်</string>
+    <string name="nav_calendar">ပြက်လက်</string>
+    <string name="nav_profile">အကောင့်</string>
+    <string name="nav_account">အကောင့်</string>
+    <string name="nav_entry">မှတ်တမ်း</string>
+    <string name="nav_back">နောက်သို့</string>
+
+    <!-- Shared states -->
+    <string name="state_loading_diary">သင့်နောက်တွဲကို ဖွင့်နေသည်</string>
+    <string name="state_loading_entries">မှတ်တမ်းများကို ဖွင့်နေသည်</string>
+    <string name="state_loading_entry">မှတ်တမ်းကို ဖွင့်နေသည်</string>
+    <string name="state_loading_moods">ခံစားချက်များကို ဖွင့်နေသည်</string>
+    <string name="state_loading_calendar">ပြက်လက်ကို ဖွင့်နေသည်</string>
+    <string name="state_loading_profile">အကောင့်ကို ဖွင့်နေသည်</string>
+    <string name="state_retry">ထပ်စမ်းပါ</string>
+
+    <!-- Auth -->
+    <string name="common_dismiss">ပိတ်ပါ</string>
+    <string name="common_on">ဖွင့်</string>
+    <string name="common_off">ပိတ်</string>
+    <string name="common_favourite_add">စိတ်ကြိုက်များထဲ ထည့်ပါ</string>
+    <string name="common_favourite_remove">စိတ်ကြိုက်များထဲမှ ဖယ်ရှားပါ</string>
+    <string name="developer_section">ရေးသားသူ</string>
+    <string name="developer_github">GitHub</string>
+    <string name="developer_github_handle">newarjun101</string>
+    <string name="developer_github_url">https://github.com/newarjun101</string>
+    <string name="developer_link_label">%1$s · %2$s</string>
+    <string name="developer_linkedin">LinkedIn</string>
+    <string name="developer_linkedin_handle">arjundkl</string>
+    <string name="developer_linkedin_url">https://www.linkedin.com/in/arjundkl</string>
+    <string name="developer_phone_number">+959978770588</string>
+    <string name="developer_phone">ဖုန်း</string>
+    <string name="developer_phone_url">tel:+959978770588</string>
+    <string name="developer_email">အီးမေးလ်</string>
+    <string name="developer_email_address">newarjun101@gmail.com</string>
+    <string name="developer_email_url">mailto:newarjun101@gmail.com</string>
+    <string name="developer_version">ဗားရှင်း</string>
+    <string name="developer_version_value">1.0.0</string>
+    <string name="auth_title">သင့်နောက်တွဲ၊ သင့်စက်</string>
+    <string name="auth_create_account_title">အကောင့်ဖန်တီးပါ</string>
+    <string name="auth_welcome_back">ပြန်လည်ကြိုဆိုပါတယ်</string>
+    <string name="auth_have_account">အကောင့်ရှိပြီးသား</string>
+    <string name="auth_subtitle">မက်ခ်ဖွင့်ရန် မရွေးချယ်ပါက သင့်နောက်တွဲသည် သင့်စက်ထဲတွင်သာ ထားရှိပါမည်။</string>
+    <string name="auth_email">အီးမေးလ်</string>
+    <string name="auth_password">စကားဝှက်</string>
+    <string name="auth_confirm_password">စကားဝှက်ကို အတည်ပြုပါ</string>
+    <string name="auth_sign_in">ဝင်ရောက်ပါ</string>
+    <string name="auth_create_account">အကောင့်ဖန်တီးပါ</string>
+    <string name="auth_forgot_password">စကားဝှက် မေ့ပြန်ပြီးလား။</string>
+    <string name="auth_send_reset">ပြန်လည်သတ်မှတ်လင့် ပို့ပါ</string>
+    <string name="auth_reset_sent">ပြန်လည်သတ်မှတ်လင့်ကို သင့်အိမ်လို့စာတွဲတွင် ရှိပါမည်။</string>
+    <string name="auth_error_title">တစ်ခုခု မှားယွင်းသွားပါသော်လည်း</string>
+    <string name="auth_continue_offline">အကောင့်မရှိဘဲ ဆက်လက်ပါ</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_offline_notice">ဤစက်တွင်သာ သိမ်းဆည်းထားပါသည်။ စက်အများအကြား တူညီစေရန် ဝင်ရောက်ပါ။</string>
+    <string name="dashboard_sign_in">ဝင်ရောက်ပါ</string>
+    <string name="dashboard_hello">မင်္ဂလာပါ၊ %1$s</string>
+    <string name="dashboard_hello_no_name">မင်္ဂလာပါ</string>
+    <string name="dashboard_streak">လက်ရှိဆက်တိုက်</string>
+    <string name="dashboard_entries">မှတ်တမ်းများ</string>
+    <string name="dashboard_average_mood">ပျမ်းမျှ ခံစားချက်</string>
+    <string name="dashboard_favourites">စိတ်ကြိုက်များ</string>
+    <string name="dashboard_recent_entries">လေးခုအနီ မှတ်တမ်းများ</string>
+    <string name="dashboard_see_all">အားလုံးကြည့်ပါ</string>
+    <string name="dashboard_empty_title">မည်သူများ မရေးသေးပါ</string>
+    <string name="dashboard_empty_action">ပထမဆုံး မှတ်တမ်း ရေးပါ</string>
+    <string name="dashboard_streak_days">%1$d ရက်</string>
+
+    <!-- Dashboard charts -->
+    <string name="dashboard_range_7d">7 ရက်</string>
+    <string name="dashboard_range_30d">30 ရက်</string>
+    <string name="dashboard_range_12w">12 ပတ်</string>
+    <string name="dashboard_range_1y">1 နှစ်</string>
+    <string name="dashboard_range_dates">%1$s မှ %2$s</string>
+    <string name="dashboard_mood_distribution">ခံစားချက် အသုံးအပြုံ</string>
+    <string name="dashboard_mood_trend">အချိန်အလိုက် ခံစားချက်</string>
+    <string name="dashboard_entry_frequency">ရေးသားမှု အကြိမ်အနှစ်</string>
+    <string name="dashboard_emotions">ခံစားခဲ့သော စိတ်ချက်များ</string>
+    <string name="dashboard_records">မှတ်တမ်း</string>
+    <string name="dashboard_periods">ကာလ</string>
+    <string name="dashboard_no_moods">ဤကာလတွင် ခံစားချက်မည်မျှ မမှတ်တမ်းတင်ထားပါ</string>
+    <string name="dashboard_no_entries">ဤကာလတွင် မှတ်တမ်းများ မရှိပါ</string>
+    <string name="dashboard_no_emotions">ဤကာလတွင် စိတ်ချက်များ မမှတ်တမ်းတင်ထားပါ</string>
+    <string name="dashboard_busiest">အများဆုံးရေးသားထားသည့် ကာလ: %1$d</string>
+    <string name="dashboard_mood_records">ခံစားချက် မှတ်တမ်း: %1$d</string>
+    <string name="dashboard_mood_gaps">ဤကာလ %1$d ခုတွင် ခံစားချက် မမှတ်တမ်းတင်ထားပါ</string>
+    <string name="dashboard_entry_gaps">ဤကာလ %1$d ခုတွင် ဘာများများ မရေးထားပါ</string>
+
+    <string name="chart_mood_share">%1$s %2$d%</string>
+    <string name="chart_emotion_share">%1$s %2$d</string>
+    <string name="chart_mood_mix_summary">ခံစားချက် မှတ်တမ်း %1$d ခု: %2$s</string>
+    <string name="chart_mood_trend_summary">ကာလ %1$d ခုအပေါ် ပျမ်းမျှ ခံစားချက် လမ်းကြောင်းက၊ ဤအနား %2$d ခုတွင် မှတ်တမ်းတင်ထားပါသည်</string>
+    <string name="chart_frequency_summary">မှတ်တမ်း %1$d ခု။ အများဆုံးရေးသားထားသည့် ကာလတွင် %2$d ခု။</string>
+    <string name="chart_emotions_summary">အများဆုံး ခံစားခဲ့သောများ: %1$s</string>
+
+    <!-- Diary list -->
+    <string name="diary_new_entry">မှတ်တမ်းအသစ်</string>
+    <string name="diary_search">ရှာပါ</string>
+    <string name="diary_favourites_filter">★ စိတ်ကြိုက်များ</string>
+    <string name="diary_clear_filters">ရှင်းလင်းပါ</string>
+    <string name="diary_result_count">%2$d အနက် %1$d ခု တူညီသည်</string>
+    <string name="diary_empty_title">မှတ်တမ်းများ မရှိသေးပါ</string>
+    <string name="diary_empty_filtered_title">မည်သည့်ကိုမျှ မတူညီပါ</string>
+    <string name="diary_empty_filtered_body">အခြားစလုံး ရှာဖွေပါ သို့မဟုတ် စိတ်ကြိုက်များကို ရှင်းလင်းပါ။</string>
+    <string name="diary_empty_body">တစ်ခုခု ရေးပါ — တစ်ကြောင်းတိုင်း ထိန်းသိမ်းတတ်ပါသည်။</string>
+
+    <!-- Diary editor -->
+    <string name="editor_title_field">ခေါင်းစဉ်</string>
+    <string name="editor_content_field">ဘာဖြစ်ပါခဲ့သနည်း။</string>
+    <string name="editor_mood_section">ခံစားချက်</string>
+    <string name="editor_emotions_section">စိတ်ချက်များ</string>
+    <string name="editor_tags_field">တဂ်ပါများ (ကော်မာဖြင့် သီးခြားပါ)</string>
+    <string name="editor_word_count">စကား %1$d လုံး</string>
+    <string name="editor_date_field">မှတ်တမ်းရက်စွဲ</string>
+    <string name="mood_date_field">မှတ်တမ်းတင်ရက်စွဲ</string>
+    <string name="date_picker_confirm">ရက်စွဲသုံးမည်</string>
+    <string name="date_picker_cancel">မလုပ်တော့ပါ</string>
+    <string name="date_selector_label">%1$s · %2$s</string>
+    <string name="editor_save">သိမ်းဆည်းပါ</string>
+    <string name="editor_saving">သိမ်းဆည်းနေသည်…</string>
+    <string name="editor_update_title">ဤမှတ်တမ်းကို အပ်ဒိတ်လုပ်မလား။</string>
+    <string name="editor_update_message">သင်ပြောင်းလဲထားသည်များကို မှတ်တမ်းတွင် သိမ်းဆည်းပါမည်။</string>
+    <string name="editor_update_cancel">ဆက်လက်ပြင်ဆင်မည်</string>
+    <string name="editor_update_confirm">မှတ်တမ်းအပ်ဒိတ်လုပ်မည်</string>
+    <string name="editor_delete">မှတ်တမ်းကို ဖျက်ပါ</string>
+
+    <!-- Mood -->
+    <string name="mood_prompt">ယနေ့ ဘယ်လိုခံစားနေသနည်း။</string>
+    <string name="mood_note_field">မှတ်ချက် (ရန်ကိုပြု)</string>
+    <string name="mood_record">မှတ်တမ်းတင်ပါ</string>
+    <string name="mood_saving">သိမ်းဆည်းနေသည်…</string>
+    <string name="mood_history">မှတ်တမ်းတိုင်း</string>
+    <string name="mood_empty_title">ခံစားချက်မည်မျှ မမှတ်တမ်းတင်ထားပါ</string>
+    <string name="mood_empty_body">ပုံစံများကို မြင်တွေ့ရန် အထက်တွင် မှတ်တမ်းတင်ပါ။</string>
+    <string name="mood_entry_line">%1$s</string>
+    <string name="mood_note_prefix">%1$s — %2$s</string>
+    <string name="mood_check_in">မှတ်တမ်းတင်ပါ</string>
+    <string name="mood_edit">မှတ်တမ်းတင်မှု တည်းဖြတ်ရန်</string>
+    <string name="mood_editing">မှတ်တမ်းတင်မှု တည်းဖြတ်နေသည်</string>
+    <string name="mood_edit_save">အပြောင်းအလဲများ သိမ်းဆည်းပါ</string>
+    <string name="mood_edit_cancel">တည်းဖြတ်မှု ပယ်ဖျက်ပါ</string>
+    <string name="mood_delete">မှတ်တမ်းတင်မှု ဖျက်ပါ</string>
+    <string name="mood_delete_confirm_title">ဤမှတ်တမ်းတင်မှုကို ဖျက်မည်လား။</string>
+    <string name="mood_delete_confirm_body">ဤနည်းနှင့် မှတ်ချက်ကို ဖျက်ပစ်ပါမည်။ နောက်လည်တွင် ပြန်လည်မရနိုင်ပါ။</string>
+    <string name="mood_edit_entry">%1$s မှတ်တမ်းတင်မှုကို တည်းဖြတ်ရန်</string>
+    <string name="mood_delete_entry">%1$s မှတ်တမ်းတင်မှုကို ဖျက်ရန်</string>
+    <string name="mood_today_summary">ယနေ့ မှတ်တမ်းတင်ချက်: %1$d</string>
+    <string name="mood_unknown">မသိမှတ်ထားသော ခံစားချက်</string>
+
+    <!-- Calendar -->
+    <string name="calendar_previous_month">ယခင်လ</string>
+    <string name="calendar_next_month">နောက်လ</string>
+    <string name="calendar_empty_day">ဤနေ့တွင် မည်သူများ မမှတ်တမ်းတင်ထားပါ။</string>
+    <string name="calendar_select_day">နေ့တစ်ရက် ရွေးပါ</string>
+    <string name="calendar_mood_line">ခံစားချက်: %1$s</string>
+    <string name="calendar_mood_note">ခံစားချက်: %1$s — %2$s</string>
+    <string name="calendar_streak_summary">%1$d ရက်ဆက်တိုက် · လှုပ်ရှားသော ရက် %2$d</string>
+    <string name="entry_date_label">%3$d ခုနှစ် %2$s %1$d ရက်</string>
+    <string name="calendar_month_label">%1$s - %2$d</string>
+
+    <!-- Monday-first, matching the grid. Burmese abbreviates by the first letter of the day
+         name (တနင်္ဂနွေ, အင်္ဂါ, ဗုဒ္ဓဟူး, ကြာသပတေး, သောကြာ, စနေ), which leaves Monday
+         and Sunday sharing တ. Position in the row is what separates them, exactly as the two
+         T's do in English; a genuinely distinct form does not exist. -->
+    <string name="weekday_mon_short">တ</string>
+    <string name="weekday_tue_short">အ</string>
+    <string name="weekday_wed_short">ဗ</string>
+    <string name="weekday_thu_short">က</string>
+    <string name="weekday_fri_short">သ</string>
+    <string name="weekday_sat_short">စ</string>
+    <string name="weekday_sun_short">တ</string>
+
+    <!-- Profile -->
+    <string name="profile_sync_section">တူညီခြင်း</string>
+    <string name="profile_syncing">သင့်အကောင့်သို့ တူညီနေသည်</string>
+    <string name="profile_syncing_ellipsis">တူညီနေသည်…</string>
+    <string name="profile_not_signed_in">မဝင်ရောက်ထားခြင်း မရှိ — အားလုံးသည် ဤစက်ထဲတွင်သာ ထားရှိပါမည်</string>
+    <string name="profile_sync_now">ယခု တူညီပါ</string>
+    <string name="profile_pending">ဆိုင်ငံ့</string>
+    <string name="profile_conflicts">ကိုယ်ပိုင်းတူညီမှုများ</string>
+    <string name="profile_last_synced">နောက်ဆုံး တူညီချိန်</string>
+    <string name="profile_never_synced">မလုံးဝ</string>
+    <string name="profile_appearance_section">အပြင်အဆင်</string>
+    <string name="profile_theme_system">စနစ်အတိုင်း</string>
+    <string name="profile_theme_light">အလင်း</string>
+    <string name="profile_theme_dark">အမှောင်</string>
+    <string name="profile_daily_reminders">နေ့စဉ် အော်ဖြော်ချက်များ</string>
+    <string name="profile_reminders_off">အော်ဖြော်ချက်များ ပိတ်ထားပါသည်။</string>
+    <string name="profile_reminders_permission_denied">ဤအက်ပ်အတွက် အကြောင်းကြားချက်များကို ခွင့်ပြုပါက အော်ဖြော်ချက်များကို မဖွင့်သေးပါ။</string>
+    <string name="profile_reminders_unsupported">ဤပလက်ဖောမ်တွင် အော်ဖြော်ချက်များကို မရရှိနိုင်ပါ။</string>
+    <string name="profile_data_section">သင့်ဒေတာ</string>
+    <string name="profile_export_notice">တင်းဖိုင်များကို ဒစ်ပေါ်တွင် ရေးသားပြီး စနစ်၏ မျှဝေမှုစာမျက်နှာကို လွှဲပေးပါသည်။ အက်ပ်က ဘာများကိုမျာ မတင်ဆက်ပါ။</string>
+    <string name="profile_export_json">JSON တင်းဖိုင်ယူပါ</string>
+    <string name="profile_export_csv">CSV တင်းဖိုင်ယူပါ</string>
+    <string name="profile_export_saved">သိမ်းပြီး %1$s</string>
+    <string name="profile_account_section">အကောင့်</string>
+    <string name="profile_on_device_title">စက်ထဲရှိ နောက်တွဲ</string>
+    <string name="profile_sign_out">ထွက်ပါ</string>
+    <string name="profile_sign_out_title">ထွက်မည်လား။</string>
+    <string name="profile_sign_out_body">သင့်မှတ်တမ်းများသည် ဤစက်ထဲတွင် ထားရှိပြီး ပြန်ဝင်ရောက်သည့်အခါ ပြန်လည်ပေါ်လာပါမည်။</string>
+    <string name="profile_delete_account">အကောင့်နှင့် ဒေတာအားလုံးကို ဖျက်ပါ</string>
+    <string name="profile_delete_title">အားလုံးကို ဖျက်မည်လား။</string>
+    <string name="profile_delete_body">ဤလျှင် သင့်အကောင့်၊ ဆာဗာထဲရှိ မှတ်တမ်းများနှင့် ဤစက်ထဲရှိ မိတ္တူကို ဖျက်ပါမည်။ ပြန်လည်ချောင့်ခြင်း မရပါ။</string>
+    <string name="profile_delete_confirm">ဖျက်ပါ</string>
+    <string name="profile_sign_in_prompt">ဝင်ရောက်ပါ သို့မဟုတ် အကောင့်ဖန်တီးပါ</string>
+    <string name="profile_cancel">ပယ်ဖျက်ပါ</string>
+
+    <!-- Reminders -->
+    <string name="reminder_diary_title">သင့်နေ့ဘယ်လိုရှိပါသနည်း။</string>
+    <string name="reminder_diary_body">ခဏမဟုတ် ရေးသားပါ။</string>
+    <string name="reminder_mood_title">ဘယ်လိုခံစားနေသနည်း။</string>
+    <string name="reminder_mood_body">လက်ညှိန်းတွင် မှတ်တမ်းတင်လိုက်ရုံတန်ပါပြီ။</string>
+    <string name="reminder_reflection_title">တစ်ပတ်တာ ရေးသားချိန်</string>
+    <string name="reminder_reflection_body">လွန်ခဲ့သော ရက်သတ္တပတ်ကို ပြန်ကြည့်ပါ။</string>
+
+    <!-- Mood catalogue -->
+    <string name="mood_very_happy">အလွန်ပျော်ရွှင်</string>
+    <string name="mood_excited">စိတ်လှုပ်ရှား</string>
+    <string name="mood_happy">ပျော်ရွှင်</string>
+    <string name="mood_good">ကောင်းမွန်</string>
+    <string name="mood_neutral">ပုံမှန်</string>
+    <string name="mood_tired">ပင်ပန်း</string>
+    <string name="mood_sad">နှောန်း</string>
+    <string name="mood_anxious">စိတ်လှုပ်ရှားမှု</string>
+    <string name="mood_angry">ဒေါ်မိတ်</string>
+    <string name="mood_very_sad">အလွန်နှောန်း</string>
+
+    <!-- Emotion catalogue -->
+    <string name="emotion_joy">ဝမ်းသာခြင်း</string>
+    <string name="emotion_calm">ငြည်ငြိမ်ခြင်း</string>
+    <string name="emotion_love">ချစ်မိတ်</string>
+    <string name="emotion_excited">စိတ်လှုပ်ရှားမှု</string>
+    <string name="emotion_grateful">ကျေးဇူးတင်မှု</string>
+    <string name="emotion_confident">ယုံကြည်ချက်ရှိ</string>
+    <string name="emotion_motivated">တွန်းချက်ရှိ</string>
+    <string name="emotion_hopeful">မျက်နှာချမ်းမြေ့တွေး</string>
+    <string name="emotion_tired">ပင်ပန်းခြင်း</string>
+    <string name="emotion_bored">ငွေ့ပျုပ်တတ်</string>
+    <string name="emotion_confused">ရှုပ်ထွေး</string>
+    <string name="emotion_sad">ဝမ်းနည်း</string>
+    <string name="emotion_lonely">တစ်ယောက်တည်း</string>
+    <string name="emotion_angry">ဒေါ်မိတ်</string>
+    <string name="emotion_anxious">စိတ်လှုပ်ရှားမှု</string>
+    <string name="emotion_stressed">ဖိအားများ</string>
+    <string name="emotion_unknown">မသိမှတ်ထားသော ခံစားချက်</string>
+
+    <string name="emotion_group_positive">တောင်ပါ</string>
+    <string name="emotion_group_neutral">မျက်မြန်</string>
+    <string name="emotion_group_difficult">လေးများ</string>
+
+    <!-- Month names. Bare names, no year: the yearly chart axis uses them on their own and
+         the calendar header composes one with calendar_month_label. -->
+    <string name="month_1">ဇန်နဝါရီ</string>
+    <string name="month_2">ဖေဖော်ဝါရီ</string>
+    <string name="month_3">မတ်</string>
+    <string name="month_4">ဧပြီ</string>
+    <string name="month_5">မေ</string>
+    <string name="month_6">ဇွန်</string>
+    <string name="month_7">ဇူလိုင်</string>
+    <string name="month_8">ဩဂုတ်</string>
+    <string name="month_9">စက်တင်ဘာ</string>
+    <string name="month_10">အောက်တိုဘာ</string>
+    <string name="month_11">နိုဝင်ဘာ</string>
+    <string name="month_12">ဒီဇင်ဘာ</string>
+
+    <!-- ဆက်တင်များ -->
+    <string name="nav_settings">ဆက်တင်များ</string>
+    <string name="settings_title">ဆက်တင်များ</string>
+    <string name="settings_language_title">ဘာသာစကား</string>
+    <string name="settings_language_english">အင်္ဂလိပ်</string>
+    <string name="settings_language_burmese">မြန်မာ</string>
+    <string name="settings_language_en_short">EN</string>
+    <string name="settings_language_mm_short">MM</string>
+    <string name="settings_profile_section">ပရိုဖိုင်</string>
+    <string name="settings_display_name_label">နာမည်</string>
+    <string name="settings_display_name_hint">အက်ပ်က နှိုက်ခေါ်ပုံစံ</string>
+    <string name="settings_display_name_save">နာမည်သိမ်းမည်</string>
+    <string name="settings_photo_label">ပုံရိပ်</string>
+    <string name="settings_photo_change">ပုံပြောင်းမည်</string>
+    <string name="settings_photo_remove">ပုံဖျက်မည်</string>
+    <string name="settings_photo_uploading">ပုံတင်နေသည်</string>
+    <string name="settings_photo_content_description">ပရိုဖိုင်ပုံရိပ်</string>
+    <string name="settings_name_saved">နာမည်သိမ်းပြီးပါပြီ</string>
+    <string name="settings_photo_removed">ပုံဖျက်ပြီးပါပြီ</string>
+    <string name="settings_account_section">အကောင့်</string>
+    <string name="settings_local_only_note">အကောင့်မရှိဘဲ ဒီရောင်းကို အသုံးပြုနေသည်။ တစ်ခုလုံးချင်းစလုံးကို တစ်နေရာတည်းမှ သိမ်းဆည်းရန် ဝင်ရောက်ပါ</string>
+    <string name="settings_security_section">စလုံး</string>
+    <string name="settings_change_password">စလုံးပြောင်းမည်</string>
+    <string name="settings_current_password">လက်ရှိစလုံး</string>
+    <string name="settings_new_password">စလုံးအသစ်</string>
+    <string name="settings_confirm_password">စလုံးအသစ်အတည်ပြုမည်</string>
+    <string name="settings_password_changed">စလုံးပြောင်းပြီးပါပြီ</string>
+    <string name="settings_danger_section">အကောင့်</string>
+    <string name="settings_sign_out">ထွက်မည်</string>
+    <string name="settings_sign_out_confirm_title">ထွက်မည်လား</string>
+    <string name="settings_sign_out_confirm_body">သင့်မှတ်တမ်းများသည် ဤစက်ထဲတွင် ဆက်လက်နေပါမည်။ တစ်ခုလုံးချင်းစလုံးကို ပြန်လည်တစ်ခုလုံးချင်းစလုံးကို ထပ်မံဝင်ရောက်ရန် လိုအပ်ပါမည်</string>
+    <string name="settings_delete_account">အကောင့်နှင့်အချက်အလက်အားလုံး ဖျက်မည်</string>
+    <string name="settings_delete_confirm_title">အကောင့်ကို ဖျက်မည်လား</string>
+    <string name="settings_delete_confirm_body">ဤလုပ်မှုက သင့်ပရိုဖိုင်၊ မှတ်တမ်းအားလုံးနှင့် အကောင့်ကိုယ်တိုင်ကို ဖျက်ပစ်ပါမည်။ ပြန်လည်ပြုလုပ်၍မရ</string>
+    <string name="error_password_mismatch">စလုံးနှစ်ခု မတူညီပါ</string>
+    <string name="error_password_unchanged">ဤနေရာတွင် မသုံးခဲ့သေးသော စလုံးရွေးပါ</string>
+    <string name="error_weak_password">အနည်းဆုံး %1$d အလုံး သုံးပါ</string>
+    <string name="error_title_too_long">ထဲ့နာမည် ရှည်လွန်းနေသည်</string>
+    <string name="error_storage_unavailable">ဤအကောင့်တွင် ဓာတ်ပုံသိုလှောင်ခန်း မရှိပါ။</string>
+    <string name="error_photo_empty">ထိုဖိုင်တွင် ပုံအချက်အလက် မပါပါ။</string>
+    <string name="error_photo_too_large">ထိုပုံသည် 5 MB ထက်ကြီးလွန်သည်။</string>
+    <string name="error_network">အင်တာနက်ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်စမ်းပါ။</string>
+    <string name="error_authentication">အကောင့်ကို အတည်ပြုမရပါ။ ထပ်မံဝင်ရောက်ပါ။</string>
+    <string name="error_permission_denied">ဤလုပ်ဆောင်ချက်အတွက် ခွင့်ပြုချက် မရှိပါ။</string>
+    <string name="error_not_found">ဤအရာကို မရရှိနိုင်တော့ပါ။</string>
+    <string name="error_validation">ဖြည့်ထားသော အချက်အလက်ကို စစ်ဆေးပြီး ထပ်စမ်းပါ။</string>
+    <string name="error_conflict">ဤအရာကို အခြားနေရာတွင် ပြောင်းလဲထားသည်။ ပြန်ဖွင့်ပြီး ထပ်စမ်းပါ။</string>
+    <string name="error_storage">ပြောင်းလဲမှုများကို ဤစက်တွင် မသိမ်းဆည်းနိုင်ပါ။</string>
+    <string name="error_export">ထုတ်ယူဖိုင်ကို မဖန်တီးနိုင်ပါ။ ထပ်စမ်းပါ။</string>
+    <string name="error_not_supported">ဤလုပ်ဆောင်ချက်ကို ဤစက်တွင် မရရှိနိုင်ပါ။</string>
+    <string name="error_unexpected">တစ်စုံတစ်ရာ မှားယွင်းသွားသည်။ ထပ်စမ်းပါ။</string>
+    <string name="settings_photo_updated">ပုံကို အသစ်ဖြင့် အစားထိုးပြီးပါပြီ။</string>
+</resources>

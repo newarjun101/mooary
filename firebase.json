@@ -1,0 +1,42 @@
+{
+  "//": [
+    "Deploy and emulator configuration for the Diary & Mood Tracker.",
+    "",
+    "Rules and indexes are the only things this project deploys. There is no Hosting or",
+    "Functions target: the app talks to Firestore, Identity Toolkit and Storage directly over",
+    "their REST APIs.",
+    "",
+    "Storage holds exactly one thing per account -- the profile photo under",
+    "users/{uid}/avatar. Everything else stays on-device.",
+    "",
+    "Run `firebase use --add` once to register a project with the CLI, or copy",
+    ".firebaserc.example to .firebaserc and set the project id by hand."
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "host": "127.0.0.1",
+      "port": 4000
+    },
+    "singleProjectMode": true,
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
+    }
+  }
+}

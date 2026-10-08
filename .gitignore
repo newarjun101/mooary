@@ -1,0 +1,46 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+**/build/
+iosApp/build-device/
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Firebase credentials. A Firebase API key identifies the project rather than granting access
+# on its own -- Firestore security rules and ID tokens are what enforce ownership -- but the
+# file is still specific to one project and is generated per developer, so it stays out of
+# version control. The build regenerates res/raw/firebase_config.json from it.
+google-services.json
+/firebase-debug.log
+/firebase-debug.*.log
+/ui-debug.log
+/firestore-debug.log
+firestore.rules.test
+
+# Selects which project `firebase deploy` targets, so it is per developer. The template that
+# is safe to share is .firebaserc.example.
+.firebaserc
+.firebase/
+
+# iOS config, generated per developer from GoogleService-Info.plist and bundled into the app.
+/iosApp/**/FirebaseConfig.plist
+GoogleService-Info.plist
+
+# iOS host app. iosApp.xcodeproj is generated from iosApp/project.yml by `xcodegen generate`,
+# so it is deliberately not committed; a merge conflict in a pbxproj is unreadable and the
+# project.yml diff is not.
+iosApp/iosApp.xcodeproj/
+iosApp/Local.xcconfig
+iosApp/iosApp/FirebaseConfig.plist
+.idea/
+.kotlin/

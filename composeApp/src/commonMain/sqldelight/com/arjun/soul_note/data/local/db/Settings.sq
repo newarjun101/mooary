@@ -1,0 +1,21 @@
+-- Device-local preferences and sync bookkeeping.
+--
+-- This table holds **no journal content**: only theme choice, reminder configuration and
+-- the timestamp of the last successful reconciliation.
+
+CREATE TABLE settings (
+    key   TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+select:
+SELECT value FROM settings WHERE key = :key;
+
+upsert:
+INSERT OR REPLACE INTO settings(key, value) VALUES (:key, :value);
+
+delete:
+DELETE FROM settings WHERE key = :key;
+
+selectAll:
+SELECT * FROM settings;

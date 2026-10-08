@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SoulNote</string>
+
+    <!--
+        The channel a pushed message is posted on, and the channel the messaging SDK is told
+        to use by default. It is deliberately the same id the reminder receiver creates: push
+        and reminders are the same kind of thing to the user, and splitting them across two
+        channels would give the phone two separate settings toggles for one feature. Must stay
+        in step with ReminderReceiver.CHANNEL_ID. Not user-facing text, so not translatable.
+    -->
+    <string name="push_channel_id" translatable="false">diary_reminders</string>
+</resources>

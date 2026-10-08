@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Every user-visible string in the app.
+
+      Values that are built from a mood or emotion id ("very_happy" -> "very happy") are
+      formatted at the call site with a placeholder rather than translated here: those are
+      data, not copy, and a translation table for them would silently rot as the catalogue
+      grows.
+    -->
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="app_name">SoulNote</string>
+    <string name="nav_diary">Diary</string>
+    <string name="nav_mood">Mood</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_entry">Entry</string>
+    <string name="nav_back">Back</string>
+
+    <!-- Shared states -->
+    <string name="state_loading_diary">Loading your diary</string>
+    <string name="state_loading_entries">Loading entries</string>
+    <string name="state_loading_entry">Loading entry</string>
+    <string name="state_loading_moods">Loading moods</string>
+    <string name="state_loading_calendar">Loading calendar</string>
+    <string name="state_loading_profile">Loading profile</string>
+    <string name="state_retry">Try again</string>
+
+    <!-- Auth -->
+    <string name="common_dismiss">Dismiss</string>
+    <string name="common_on">On</string>
+    <string name="common_off">Off</string>
+    <string name="common_favourite_add">Add to favourites</string>
+    <string name="common_favourite_remove">Remove from favourites</string>
+    <string name="developer_section">Developer</string>
+    <string name="developer_github">GitHub</string>
+    <string name="developer_github_handle">newarjun101</string>
+    <string name="developer_github_url">https://github.com/newarjun101</string>
+    <string name="developer_link_label">%1$s · %2$s</string>
+    <string name="developer_linkedin">LinkedIn</string>
+    <string name="developer_linkedin_handle">arjundkl</string>
+    <string name="developer_linkedin_url">https://www.linkedin.com/in/arjundkl</string>
+    <string name="developer_phone_number">+959978770588</string>
+    <string name="developer_phone">Phone</string>
+    <string name="developer_phone_url">tel:+959978770588</string>
+    <string name="developer_email">Email</string>
+    <string name="developer_email_address">newarjun101@gmail.com</string>
+    <string name="developer_email_url">mailto:newarjun101@gmail.com</string>
+    <string name="developer_version">Version</string>
+    <string name="developer_version_value">1.0.0</string>
+    <string name="auth_title">Your diary, your device</string>
+    <string name="auth_create_account_title">Create your account</string>
+    <string name="auth_welcome_back">Welcome back</string>
+    <string name="auth_have_account">I already have an account</string>
+    <string name="auth_subtitle">Your diary stays on your device unless you choose to sync it.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_create_account">Create account</string>
+    <string name="auth_forgot_password">Forgot your password?</string>
+    <string name="auth_send_reset">Send reset link</string>
+    <string name="auth_reset_sent">Check your inbox for the reset link.</string>
+    <string name="auth_error_title">Something went wrong</string>
+    <string name="auth_continue_offline">Continue without an account</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_offline_notice">Saved on this device only. Sign in to sync across your devices.</string>
+    <string name="dashboard_sign_in">Sign in</string>
+    <string name="dashboard_hello">Hello, %1$s</string>
+    <string name="dashboard_hello_no_name">Hello</string>
+    <string name="dashboard_streak">Current streak</string>
+    <string name="dashboard_entries">Entries</string>
+    <string name="dashboard_average_mood">Average mood</string>
+    <string name="dashboard_favourites">Favourites</string>
+    <string name="dashboard_recent_entries">Recent entries</string>
+    <string name="dashboard_see_all">See all</string>
+    <string name="dashboard_empty_title">Nothing written yet</string>
+    <string name="dashboard_empty_action">Write your first entry</string>
+    <string name="dashboard_streak_days">%1$d days</string>
+
+    <!-- Dashboard charts -->
+    <string name="dashboard_range_7d">7d</string>
+    <string name="dashboard_range_30d">30d</string>
+    <string name="dashboard_range_12w">12w</string>
+    <string name="dashboard_range_1y">1y</string>
+    <string name="dashboard_range_dates">%1$s – %2$s</string>
+    <string name="dashboard_mood_distribution">Mood mix</string>
+    <string name="dashboard_mood_trend">Mood over time</string>
+    <string name="dashboard_entry_frequency">Writing frequency</string>
+    <string name="dashboard_emotions">Emotions felt</string>
+    <string name="dashboard_records">records</string>
+    <string name="dashboard_periods">periods</string>
+    <string name="dashboard_no_moods">No moods recorded in this period</string>
+    <string name="dashboard_no_entries">No entries in this period</string>
+    <string name="dashboard_no_emotions">No emotions recorded in this period</string>
+    <string name="dashboard_busiest">Busiest period: %1$d</string>
+    <string name="dashboard_mood_records">Mood records: %1$d</string>
+    <string name="dashboard_mood_gaps">No mood logged in %1$d of these periods</string>
+    <string name="dashboard_entry_gaps">Nothing written in %1$d of these periods</string>
+
+    <!-- Chart accessibility descriptions. These are read aloud, so they carry the numbers
+         the drawing shows but a sighted user would otherwise have to estimate. -->
+    <string name="chart_mood_share">%1$s %2$d%</string>
+    <string name="chart_emotion_share">%1$s %2$d</string>
+    <string name="chart_mood_mix_summary">%1$d mood records: %2$s</string>
+    <string name="chart_mood_trend_summary">Average mood trend across %1$d periods, recorded in %2$d of them</string>
+    <string name="chart_frequency_summary">%1$d diary entries. Busiest period had %2$d.</string>
+    <string name="chart_emotions_summary">Most felt: %1$s</string>
+
+    <!-- Diary list -->
+    <string name="diary_new_entry">New entry</string>
+    <string name="diary_search">Search</string>
+    <string name="diary_favourites_filter">★ Favourites</string>
+    <string name="diary_clear_filters">Clear</string>
+    <string name="diary_result_count">%1$d of %2$d matching</string>
+    <string name="diary_empty_title">No entries yet</string>
+    <string name="diary_empty_filtered_title">Nothing matches</string>
+    <string name="diary_empty_filtered_body">Try a different search or clear the filters.</string>
+    <string name="diary_empty_body">Write something — even one line is worth keeping.</string>
+
+    <!-- Diary editor -->
+    <string name="editor_title_field">Title</string>
+    <string name="editor_content_field">What happened?</string>
+    <string name="editor_mood_section">Mood</string>
+    <string name="editor_emotions_section">Emotions</string>
+    <string name="editor_tags_field">Tags (comma separated)</string>
+    <string name="editor_word_count">%1$d words</string>
+    <string name="editor_date_field">Entry date</string>
+    <string name="mood_date_field">Check-in date</string>
+    <string name="date_picker_confirm">Use date</string>
+    <string name="date_picker_cancel">Cancel</string>
+    <string name="date_selector_label">%1$s · %2$s</string>
+    <string name="editor_save">Save</string>
+    <string name="editor_saving">Saving…</string>
+    <string name="editor_update_title">Update this entry?</string>
+    <string name="editor_update_message">Your changes will be saved to your journal.</string>
+    <string name="editor_update_cancel">Keep editing</string>
+    <string name="editor_update_confirm">Update entry</string>
+    <string name="editor_delete">Delete entry</string>
+
+    <!-- Mood -->
+    <string name="mood_prompt">How are you today?</string>
+    <string name="mood_note_field">Note (optional)</string>
+    <string name="mood_record">Record</string>
+    <string name="mood_saving">Saving…</string>
+    <string name="mood_history">History</string>
+    <string name="mood_empty_title">No moods recorded</string>
+    <string name="mood_empty_body">Check in above to start seeing patterns.</string>
+    <string name="mood_entry_line">%1$s</string>
+    <string name="mood_note_prefix">%1$s — %2$s</string>
+    <string name="mood_check_in">Check in</string>
+    <string name="mood_edit">Edit check-in</string>
+    <string name="mood_editing">Editing check-in</string>
+    <string name="mood_edit_save">Save changes</string>
+    <string name="mood_edit_cancel">Cancel edit</string>
+    <string name="mood_delete">Delete check-in</string>
+    <string name="mood_delete_confirm_title">Delete this check-in?</string>
+    <string name="mood_delete_confirm_body">This removes the mood and its note. It cannot be undone.</string>
+
+    <!-- Content descriptions for the row actions. They carry the date because the history
+         lists one pair of identically-labelled icons per check-in, so without it a screen
+         reader announces "Edit check-in" once per row with no way to tell them apart. -->
+    <string name="mood_edit_entry">Edit check-in from %1$s</string>
+    <string name="mood_delete_entry">Delete check-in from %1$s</string>
+
+    <!-- Calendar -->
+    <string name="calendar_previous_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_empty_day">Nothing recorded on this day.</string>
+    <string name="calendar_select_day">Select a day</string>
+    <string name="calendar_mood_line">Mood: %1$s</string>
+    <string name="calendar_mood_note">Mood: %1$s — %2$s</string>
+    <string name="calendar_streak_summary">%1$d day streak · %2$d active days</string>
+    <string name="entry_date_label">%1$d %2$s %3$d</string>
+    <string name="calendar_month_label">%1$s - %2$d</string>
+
+    <!-- Weekday column headers, Monday first. Single letters to match the grid, which means
+         English relies on position to tell the two T's apart. -->
+    <string name="weekday_mon_short">M</string>
+    <string name="weekday_tue_short">T</string>
+    <string name="weekday_wed_short">W</string>
+    <string name="weekday_thu_short">T</string>
+    <string name="weekday_fri_short">F</string>
+    <string name="weekday_sat_short">S</string>
+    <string name="weekday_sun_short">S</string>
+
+    <!-- Profile -->
+    <string name="profile_sync_section">Sync</string>
+    <string name="profile_syncing">Syncing to your account</string>
+    <string name="profile_syncing_ellipsis">Syncing…</string>
+    <string name="profile_not_signed_in">Not signed in — everything stays on this device</string>
+    <string name="profile_sync_now">Sync now</string>
+    <string name="profile_pending">Pending</string>
+    <string name="profile_conflicts">Conflicts</string>
+    <string name="profile_last_synced">Last synced</string>
+    <string name="profile_never_synced">Never</string>
+    <string name="profile_appearance_section">Appearance</string>
+    <string name="profile_theme_system">Follow system</string>
+    <string name="profile_theme_light">Light</string>
+    <string name="profile_theme_dark">Dark</string>
+    <string name="profile_daily_reminders">Daily reminders</string>
+    <string name="profile_reminders_off">Reminders are off.</string>
+    <string name="profile_reminders_permission_denied">Reminders stay off until you allow notifications for this app.</string>
+    <string name="profile_reminders_unsupported">Reminders are not available on this platform.</string>
+    <string name="profile_data_section">Your data</string>
+    <string name="profile_export_notice">Exports are written to disk and handed to the system share sheet. Nothing is uploaded by the app.</string>
+    <string name="profile_export_json">Export JSON</string>
+    <string name="profile_export_csv">Export CSV</string>
+    <string name="profile_export_saved">Saved %1$s</string>
+    <string name="profile_account_section">Account</string>
+    <string name="profile_on_device_title">On-device diary</string>
+    <string name="profile_sign_out">Sign out</string>
+    <string name="profile_sign_out_title">Sign out?</string>
+    <string name="profile_sign_out_body">Your entries stay on this device and reappear when you sign back in.</string>
+    <string name="profile_delete_account">Delete account and all data</string>
+    <string name="profile_delete_title">Delete everything?</string>
+    <string name="profile_delete_body">This removes your account, your entries on the server, and the copy on this device. It cannot be undone.</string>
+    <string name="profile_delete_confirm">Delete</string>
+    <string name="profile_sign_in_prompt">Sign in or create an account</string>
+    <string name="profile_cancel">Cancel</string>
+
+    <!-- Reminder copy is shared with the native schedulers, which read these same
+         strings through ReminderCopy so a wording change lands in one place. -->
+    <string name="reminder_diary_title">How was your day?</string>
+    <string name="reminder_diary_body">Take a moment to write it down.</string>
+    <string name="reminder_mood_title">How are you feeling?</string>
+    <string name="reminder_mood_body">A ten-second check-in is enough.</string>
+    <string name="reminder_reflection_title">A week of writing</string>
+    <string name="reminder_reflection_body">Look back over the last seven days.</string>
+    <!-- Catalogue labels. Keyed by domain key, not by display text: moods and emotions
+         share ids like "tired", "sad", "angry" and "anxious", so the prefixes keep them
+         apart. See ui/labels/CatalogLabels.kt for the key-to-resource mapping. -->
+    <string name="mood_very_happy">Very happy</string>
+    <string name="mood_excited">Excited</string>
+    <string name="mood_happy">Happy</string>
+    <string name="mood_good">Good</string>
+    <string name="mood_neutral">Neutral</string>
+    <string name="mood_tired">Tired</string>
+    <string name="mood_sad">Sad</string>
+    <string name="mood_anxious">Anxious</string>
+    <string name="mood_angry">Angry</string>
+    <string name="mood_very_sad">Very sad</string>
+    <!-- No <plurals> in Compose resources, so the count sits in a form that reads
+         correctly at any value instead of a singular form plus a trailing "s". -->
+    <string name="mood_today_summary">Check-ins today: %1$d</string>
+
+    <string name="mood_unknown">Unrecognised mood</string>
+
+    <string name="emotion_joy">Joy</string>
+    <string name="emotion_calm">Calm</string>
+    <string name="emotion_love">Love</string>
+    <string name="emotion_excited">Excited</string>
+    <string name="emotion_grateful">Grateful</string>
+    <string name="emotion_confident">Confident</string>
+    <string name="emotion_motivated">Motivated</string>
+    <string name="emotion_hopeful">Hopeful</string>
+    <string name="emotion_tired">Tired</string>
+    <string name="emotion_bored">Bored</string>
+    <string name="emotion_confused">Confused</string>
+    <string name="emotion_sad">Sad</string>
+    <string name="emotion_lonely">Lonely</string>
+    <string name="emotion_angry">Angry</string>
+    <string name="emotion_anxious">Anxious</string>
+    <string name="emotion_stressed">Stressed</string>
+    <string name="emotion_unknown">Unrecognised feeling</string>
+
+    <string name="emotion_group_positive">Bright</string>
+    <string name="emotion_group_neutral">Level</string>
+    <string name="emotion_group_difficult">Heavy</string>
+
+    <!-- Month names. Bare names, no year, so the yearly chart axis can use them directly;
+         the year is composed separately through calendar_month_label. -->
+    <string name="month_1">January</string>
+    <string name="month_2">February</string>
+    <string name="month_3">March</string>
+    <string name="month_4">April</string>
+    <string name="month_5">May</string>
+    <string name="month_6">June</string>
+    <string name="month_7">July</string>
+    <string name="month_8">August</string>
+    <string name="month_9">September</string>
+    <string name="month_10">October</string>
+    <string name="month_11">November</string>
+    <string name="month_12">December</string>
+
+    <!-- Settings -->
+    <string name="nav_settings">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_burmese">Myanmar</string>
+    <string name="settings_language_en_short">EN</string>
+    <string name="settings_language_mm_short">MM</string>
+    <string name="settings_profile_section">Profile</string>
+    <string name="settings_display_name_label">Display name</string>
+    <string name="settings_display_name_hint">How the app greets you</string>
+    <string name="settings_display_name_save">Save name</string>
+    <string name="settings_photo_label">Profile photo</string>
+    <string name="settings_photo_change">Change photo</string>
+    <string name="settings_photo_remove">Remove photo</string>
+    <string name="settings_photo_uploading">Uploading photo</string>
+    <string name="settings_photo_content_description">Profile photo</string>
+    <string name="settings_name_saved">Name saved</string>
+    <string name="settings_photo_removed">Photo removed</string>
+    <string name="settings_account_section">Account</string>
+    <string name="settings_local_only_note">You are using the diary without an account. Sign in to sync and change your password.</string>
+    <string name="settings_security_section">Password</string>
+    <string name="settings_change_password">Change password</string>
+    <string name="settings_current_password">Current password</string>
+    <string name="settings_new_password">New password</string>
+    <string name="settings_confirm_password">Confirm new password</string>
+    <string name="settings_password_changed">Password changed</string>
+    <string name="settings_danger_section">Account</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_sign_out_confirm_title">Sign out?</string>
+    <string name="settings_sign_out_confirm_body">Your entries stay on this device. You will need to sign in again to sync.</string>
+    <string name="settings_delete_account">Delete account and all data</string>
+    <string name="settings_delete_confirm_title">Delete your account?</string>
+    <string name="settings_delete_confirm_body">This removes your profile, every entry, and the account itself. It cannot be undone.</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_password_unchanged">Choose a password you have not used here before</string>
+    <string name="error_weak_password">Use at least %1$d characters</string>
+    <string name="error_title_too_long">That name is too long</string>
+    <string name="error_storage_unavailable">Photo storage is not available on this account.</string>
+    <string name="error_photo_empty">That file had no image data in it.</string>
+    <string name="error_photo_too_large">That image is larger than 5 MB.</string>
+    <string name="error_network">Check your connection and try again.</string>
+    <string name="error_authentication">We could not verify your account. Please sign in again.</string>
+    <string name="error_permission_denied">You do not have permission to do that.</string>
+    <string name="error_not_found">That item is no longer available.</string>
+    <string name="error_validation">Please check the highlighted information and try again.</string>
+    <string name="error_conflict">This item changed elsewhere. Refresh and try again.</string>
+    <string name="error_storage">Your changes could not be saved on this device.</string>
+    <string name="error_export">Your export could not be created. Please try again.</string>
+    <string name="error_not_supported">This action is not available on this device.</string>
+    <string name="error_unexpected">Something went wrong. Please try again.</string>
+    <string name="settings_photo_updated">Photo updated.</string>
+</resources>

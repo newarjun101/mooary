@@ -1,0 +1,141 @@
+-- Mood check-ins, tracked independently of the diary.
+--
+-- A user may log several moods on the same day, so `date` is not unique. The calendar
+-- groups by it; the analytics roll-up averages within it.
+
+CREATE TABLE mood_entries (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    user_id       TEXT    NOT NULL,
+    mood_id       TEXT    NOT NULL,
+    mood_score    INTEGER NOT NULL,
+    note          TEXT,
+    emotions_json TEXT    NOT NULL DEFAULT '[]',
+    date          TEXT    NOT NULL,
+    created_at    INTEGER NOT NULL,
+    updated_at    INTEGER NOT NULL,
+    deleted_at    INTEGER,
+    sync_status   TEXT    NOT NULL DEFAULT 'SYNCED'
+);
+
+CREATE INDEX mood_entries_user_date ON mood_entries(user_id, date DESC, created_at DESC);
+CREATE INDEX mood_entries_user_created ON mood_entries(user_id, created_at DESC);
+CREATE INDEX mood_entries_user_mood ON mood_entries(user_id, mood_id, date DESC);
+CREATE INDEX mood_entries_user_sync ON mood_entries(user_id, sync_status);
+CREATE INDEX mood_entries_pending ON mood_entries(sync_status, updated_at) WHERE deleted_at IS NULL;
+
+-- `OR REPLACE` for the same reason as `Diary.sq`'s: `LocalStore.upsertMood` is the only
+-- writer, it is called for both inserts and updates, and a bare INSERT turns the second write
+-- of an id into a primary-key crash. All 11 columns are named, so nothing is reset by the
+-- delete-then-insert that OR REPLACE performs.
+insertOrReplace:
+INSERT OR REPLACE INTO mood_entries(
+    id, user_id, mood_id, mood_score, note, emotions_json, date,
+    created_at, updated_at, deleted_at, sync_status
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE mood_entries SET
+    mood_id = :moodId,
+    mood_score = :moodScore,
+    note = :note,
+    emotions_json = :emotionsJson,
+    date = :date,
+    updated_at = :updatedAt,
+    deleted_at = :deletedAt,
+    sync_status = :syncStatus
+WHERE id = :id AND user_id = :userId;
+
+delete:
+DELETE FROM mood_entries WHERE id = :id AND user_id = :userId;
+
+selectById:
+SELECT * FROM mood_entries WHERE id = :id AND user_id = :userId;
+
+selectVisiblePage:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY date DESC, created_at DESC
+LIMIT :limit OFFSET :offset;
+
+-- The unfiltered read behind the list, the calendar and the analytics. Ordering must stay
+-- identical to selectVisiblePage: both are "newest first", and the list screen swaps
+-- between them depending on whether a filter is active, so a difference here would reorder
+-- rows on the very next emission.
+selectVisible:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY date DESC, created_at DESC;
+
+-- Bounded newest-first read. Deliberately not a paged query: every caller asks for "the
+-- most recent N" and none of them ever read a second page.
+selectRecent:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY date DESC, created_at DESC
+LIMIT :limit;
+
+selectForDate:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND date = :date
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY created_at DESC;
+
+selectInRange:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND date >= :from AND date <= :to
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE'
+ORDER BY date DESC, created_at DESC;
+
+-- Tag and emotion lookups are answered in Kotlin by decoding the raw comma/JSON columns,
+-- so these stay `SELECT *` rather than pushing the parsing into SQL. The set of distinct
+-- values is small and bounded by Limits.EMOTIONS_MAX_COUNT, so the extra rows cost less
+-- than a join table would.
+countVisible:
+SELECT count(*) FROM mood_entries
+WHERE user_id = :userId
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+countInRange:
+SELECT count(*) FROM mood_entries
+WHERE user_id = :userId
+  AND date >= :from AND date <= :to
+  AND deleted_at IS NULL
+  AND sync_status != 'PENDING_DELETE';
+
+-- --------------------------------------------------------------------------- sync
+
+-- Everything not yet settled locally, across all users: the sync manager filters these by
+-- sync_status itself (deletes first, then writes), so this must not pre-partition them.
+selectPending:
+SELECT * FROM mood_entries
+WHERE sync_status != 'SYNCED'
+ORDER BY updated_at;
+
+-- Incremental push. Includes tombstones and SYNCED rows on purpose: the caller wants
+-- everything that moved since the watermark, and narrowing it here would silently drop a
+-- delete that the backend has not acknowledged yet.
+selectSince:
+SELECT * FROM mood_entries
+WHERE user_id = :userId
+  AND updated_at > :since
+ORDER BY updated_at;
+
+countPending:
+SELECT count(*) FROM mood_entries WHERE sync_status != 'SYNCED';
+
+countConflicts:
+SELECT count(*) FROM mood_entries WHERE sync_status = 'CONFLICT';
+
+deleteAllForUser:
+DELETE FROM mood_entries WHERE user_id = :userId;

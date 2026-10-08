@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:name="com.arjun.soul_note.DiaryApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DiaryApp"
+        tools:targetApi="36">
+
+        <activity
+            android:name="com.arjun.soul_note.MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|smallestScreenSize|density|locale|layoutDirection"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.DiaryApp"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Messaging defaults. FirebaseApp's project options are separate generated resource
+            values named google_app_id, gcm_defaultSenderId, google_api_key, and project_id;
+            see GenerateFirebaseConfig. Values are never hand-written.
+        -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/push_channel_id" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="google_app_id"
+            android:value="@string/google_app_id" />
+        <meta-data
+            android:name="gcm_defaultSenderId"
+            android:value="@string/gcm_defaultSenderId" />
+        <meta-data
+            android:name="google_api_key"
+            android:value="@string/google_api_key" />
+        <meta-data
+            android:name="project_id"
+            android:value="@string/project_id" />
+
+        <receiver
+            android:name="com.arjun.soul_note.core.notifications.ReminderReceiver"
+            android:exported="false" />
+
+        <!--
+            Disabled unless -Pdiary.firebaseMessaging=true. The service is the app's own
+            subclass, not com.google.firebase.messaging.FirebaseMessagingService: the SDK's base
+            class has empty callbacks, so declaring it directly compiles, installs, and
+            receives nothing.
+        -->
+        <service
+            android:name="com.arjun.soul_note.core.notifications.FcmMessagingService"
+            android:enabled="${fcmEnabled}"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

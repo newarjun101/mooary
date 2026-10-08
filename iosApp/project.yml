@@ -1,0 +1,122 @@
+name: iosApp
+
+# The generated .xcodeproj is deliberately not committed. This file is the source of truth:
+# `xcodegen generate` rebuilds it, so a merge conflict in a project is a merge conflict in
+# something readable. See `iosApp/README.md`.
+
+options:
+  bundleIdPrefix: com.arjun
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+  # The Kotlin framework is built by Gradle, not by Xcode, so there is no scheme to infer one
+  # from. Naming it here is what makes "Run" work in Xcode rather than only from xcodebuild.
+  defaultConfig: Debug
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    # Compose resolves its own resources at runtime and needs the deployment target to match
+    # what the framework was linked against, or the resource lookup silently misses.
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: iosApp
+    info:
+      path: iosApp/Info.plist
+      properties:
+        CFBundleDisplayName: SoulNote
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # Portrait-only would be a regression against the Android host, which ships a
+        # NavigationRail in landscape and reflows on rotation.
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # Compose Multiplatform refuses to start without this on iPhone, and the check is a
+        # thrown IllegalStateException rather than a log line: the app launches to a black
+        # window and the only clue is in the console. It is what lets the app drive the display
+        # at full refresh rate instead of being capped at 60fps.
+        CADisableMinimumFrameDurationOnPhone: true
+        # The app is offline-first, so it must not assume a network to start. Declaring
+        # ATS exceptions is deliberately NOT done: Ktor talks to Firebase over TLS and there
+        # is no plain-HTTP endpoint anywhere in the project.
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: SoulNote needs access to your photos so you can set a profile picture.
+        NSCameraUsageDescription: SoulNote needs the camera so you can take a profile picture.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.arjun.soul_note
+        PRODUCT_NAME: SoulNote
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        # Note the absence of CODE_SIGNING_ALLOWED here. It used to be "NO" for Debug with Release
+        # overriding it back on, and that combination made a device build impossible while still
+        # looking configured: an unsigned app installs on the simulator and refuses to build for a
+        # phone, and nothing in the error mentions signing. Automatic signing covers both
+        # destinations from one setting, because a simulator build ad-hoc signs with "-" and needs
+        # no team -- only a `generic/platform=iOS` build demands one, which is the right moment to
+        # be told so.
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    # DEVELOPMENT_TEAM is deliberately ABSENT rather than set to "". An empty setting still
+    # overrides: XcodeGen writes baseConfigurationReference and that key into the same
+    # XCBuildConfiguration, and a build setting beats its own base xcconfig -- so
+    # `DEVELOPMENT_TEAM = ""` silently overrode the team in Local.xcconfig and every device build
+    # failed asking for a team that was already configured. Omit the key and Configs/Debug.xcconfig
+    # supplies it, which is the difference between "set your team there" and "set your team there
+    # and have it read".
+    # Gradle owns the framework. Without these two paths the Swift side cannot see
+    # ComposeApp.framework at all, and the failure is a linker error naming a module rather
+    # than anything that says "search path".
+    configFiles:
+      Debug: Configs/Debug.xcconfig
+      Release: Configs/Release.xcconfig
+    preBuildScripts:
+      - name: Compile Kotlin Framework
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
+        basedOnDependencyAnalysis: false
+    postCompileScripts:
+      - name: Validate Swift is not the only source of the UI
+        script: |
+          # A trap worth naming: ComposeApp is a real framework, so an app that never calls
+          # MainViewController() still builds, still launches, and shows a blank window. The
+          # build is green and the app is empty. This fails the build instead.
+          if ! grep -rq "MainViewController" "$SRCROOT/iosApp"; then
+            echo "error: iosApp never calls MainViewController(), so the app would launch blank."
+            exit 1
+          fi
+        basedOnDependencyAnalysis: false
+
+schemes:
+  iosApp:
+    build:
+      targets:
+        iosApp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

@@ -1,0 +1,23 @@
+// Optional, git-ignored, and it must be an optional include: a fresh clone has no team, and a
+// missing include is a hard xcconfig parse error rather than an ignored setting. This is the only
+// thing that wires a team in, because a target's base configuration outranks the build settings
+// XcodeGen writes into the project -- so DEVELOPMENT_TEAM: "" in project.yml is a *default*, not
+// an override. Without this line, documenting "put your team in Local.xcconfig" describes a file
+// nothing ever reads, and a device build fails asking for a team that was supposedly already set.
+#include? "../Local.xcconfig"
+
+// The Kotlin framework is produced by Gradle into a different directory per target and per
+// configuration. Both are listed: a search path that does not exist is harmless, and a
+// conditional here would need `$(PLATFORM_NAME)` gymnastics to tell iosSimulatorArm64 from
+// iosArm64.
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/debugFramework $(SRCROOT)/../composeApp/build/bin/iosArm64/debugFramework
+
+// SQLDelight drives SQLite through a cinterop, so the Kotlin framework *references*
+// _sqlite3_* but does not bundle the library. Without this the link fails with a wall of
+// "Undefined symbols ... _sqlite3_bind_blob" and nothing in that output mentions SQLite.
+// It is a system library, so -l resolves it; no .tbd needs checking in.
+OTHER_LDFLAGS = $(inherited) -framework ComposeApp -lsqlite3
+
+// Compose's resource loading spawns no processes, but Gradle does, and the script sandbox
+// blocks it unless this is off.
+ENABLE_USER_SCRIPT_SANDBOXING = NO

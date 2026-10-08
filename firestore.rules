@@ -1,0 +1,171 @@
+rules_version = '2';
+
+// Firestore security rules for the Diary & Mood Tracker.
+//
+// Document layout (see FirestorePaths):
+//   users/{uid}                      profile
+//   users/{uid}/diaryEntries/{id}    diary entries
+//   users/{uid}/moods/{id}           mood check-ins
+//   users/{uid}/devices/{tokenHash}  push registration, only when the build has FCM
+//
+// The database is reachable only through the Firebase REST API with the caller's own
+// ID token, so every rule below re-derives the owner from `request.auth.uid`.
+//
+// Ownership comes from the *path*, never from a field the client controls. An earlier
+// draft also required each document to carry a `userId` matching the caller; the client
+// writes no such field, so that rule rejected every write while looking like the strict
+// one. `isOwner(uid)` on a `users/{uid}/...` path is both sufficient and unforgeable.
+//
+// The field names and shapes below are the ones RemoteMappers actually writes, asserted
+// with `hasOnly` as well as `hasAll` so a client cannot smuggle extra fields into a
+// document that other clients later read as trusted.
+//
+// Optional fields are checked field by field rather than through a helper taking a field
+// name: Firestore rules have no dynamic field access (`data[field]` does not compile),
+// so a reusable "check this optional string" function is not expressible.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // `resource` is absent on create, so the create branch cannot read anything from the
+    // existing document.
+    function profileIsValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['email', 'displayName', 'photoUrl', 'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['email', 'createdAt', 'updatedAt'])
+        && data.email is string
+        && data.email.size() >= 6
+        && data.email.size() <= 254
+        && (!('displayName' in data)
+          || data.displayName == null
+          || (data.displayName is string && data.displayName.size() <= 80))
+        && (!('photoUrl' in data)
+          || data.photoUrl == null
+          || (data.photoUrl is string && data.photoUrl.size() <= 2048))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Size limits mirror core/validation/Validators.kt. Rules are the last line of
+    // defence: the client validates for UX, this stops anything that bypasses it.
+    function diaryEntryIsValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'title', 'content', 'entryDate', 'mood', 'emotions', 'tags',
+          'isFavorite', 'location', 'weather', 'wordCount',
+          'createdAt', 'updatedAt', 'deletedAt'
+        ])
+        && data.keys().hasAll([
+          'title', 'content', 'entryDate', 'mood', 'emotions', 'tags',
+          'isFavorite', 'wordCount', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 200
+        && data.content is string
+        && data.content.size() > 0
+        && data.content.size() <= 50000
+        && data.entryDate is string
+        && data.entryDate.size() > 0
+        && data.entryDate.size() <= 32
+        && data.mood is string
+        && data.mood.size() > 0
+        && data.mood.size() <= 64
+        && data.emotions is list
+        && data.emotions.size() <= 20
+        && data.tags is list
+        && data.tags.size() <= 20
+        && data.isFavorite is bool
+        && data.wordCount is int
+        && data.wordCount >= 0
+        && data.wordCount <= 50000
+        && (!('location' in data)
+          || data.location == null
+          || (data.location is string && data.location.size() <= 200))
+        && (!('weather' in data)
+          || data.weather == null
+          || (data.weather is string && data.weather.size() <= 100))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        // Soft delete: absent or explicitly null when the row is live.
+        && (!('deletedAt' in data) || data.deletedAt == null || data.deletedAt is timestamp);
+    }
+
+    function moodEntryIsValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'mood', 'note', 'emotions', 'date', 'createdAt', 'updatedAt', 'deletedAt'
+        ])
+        && data.keys().hasAll(['mood', 'emotions', 'date', 'createdAt', 'updatedAt'])
+        && data.mood is string
+        && data.mood.size() > 0
+        && data.mood.size() <= 64
+        && data.emotions is list
+        && data.emotions.size() <= 20
+        && data.date is string
+        && data.date.size() > 0
+        && data.date.size() <= 32
+        && (!('note' in data) || data.note == null || (data.note is string && data.note.size() <= 1000))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        && (!('deletedAt' in data) || data.deletedAt == null || data.deletedAt is timestamp);
+    }
+
+    function deviceIsValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['token', 'updatedAt'])
+        && data.keys().hasAll(['token', 'updatedAt'])
+        && data.token is string
+        && data.token.size() > 0
+        && data.token.size() <= 4096
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && profileIsValid();
+      // Deleting the profile is a client-initiated account deletion, allowed so the REST
+      // delete path in SyncManager can clean up; the child collections are deleted
+      // separately, and a leftover child without its parent is unreachable.
+      allow delete: if isOwner(uid);
+
+      match /diaryEntries/{entryId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid) && diaryEntryIsValid();
+        allow delete: if isOwner(uid);
+      }
+
+      match /moods/{moodId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid) && moodEntryIsValid();
+        allow delete: if isOwner(uid);
+      }
+
+      // Push registrations. This path was added after the other three and initially had no
+      // arm, so it fell through to the deny-all catch-all below: every registration was
+      // refused, and nothing said so, because registration is fired and forgotten by
+      // design. The document is a credential, so the owner-only test is the whole rule --
+      // a readable token is a token somebody else can address, and a writable one lets a
+      // caller redirect another user's pushes to their own device.
+      match /devices/{tokenHash} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid) && deviceIsValid();
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    // Anything not matched above is denied: there is no other writable path in this
+    // database, and a rule that quietly allows unknown collections is how a diary app
+    // ends up world-readable.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
