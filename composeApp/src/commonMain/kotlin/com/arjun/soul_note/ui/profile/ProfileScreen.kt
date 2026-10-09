@@ -3,7 +3,6 @@ package com.arjun.soul_note.ui.profile
 import com.arjun.soul_note.ui.adaptive.adaptiveColumns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.BoxWithConstraints
 import com.arjun.soul_note.resources.Res
 import com.arjun.soul_note.resources.common_off
 import com.arjun.soul_note.resources.common_on
@@ -44,7 +43,6 @@ import com.arjun.soul_note.resources.profile_syncing
 import com.arjun.soul_note.resources.profile_syncing_ellipsis
 import com.arjun.soul_note.resources.profile_theme_dark
 import com.arjun.soul_note.resources.profile_theme_light
-import com.arjun.soul_note.resources.profile_theme_system
 import com.arjun.soul_note.resources.settings_language_title
 import com.arjun.soul_note.resources.developer_github
 import com.arjun.soul_note.resources.developer_github_handle
@@ -62,11 +60,14 @@ import com.arjun.soul_note.resources.developer_email_address
 import com.arjun.soul_note.resources.developer_email_url
 import com.arjun.soul_note.resources.developer_version
 import com.arjun.soul_note.resources.developer_version_value
+import com.arjun.soul_note.resources.version_info
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.StringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,12 +79,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -94,8 +92,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.compottie.Compottie
@@ -103,6 +108,7 @@ import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import com.arjun.soul_note.domain.model.ExportFormat
 import com.arjun.soul_note.domain.repository.ThemeMode
 import com.arjun.soul_note.ui.base.SessionState
@@ -213,6 +219,7 @@ fun ProfileScreen(
                             label = stringResource(Res.string.profile_last_synced),
                             value = state.sync.lastSyncedAt?.toString()?.take(10)
                                 ?: stringResource(Res.string.profile_never_synced),
+                            compact = true,
                         ),
                     ),
                     columns = adaptiveColumns(compact = 3, medium = 3, expanded = 3),
@@ -241,75 +248,32 @@ fun ProfileScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.small)) {
             SectionHeader(title = stringResource(Res.string.profile_appearance_section))
-            BoxWithConstraints {
-                if (maxWidth < 380.dp) {
-                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.small)) {
-                        ThemeMode.entries.forEach { mode ->
-                            val label = stringResource(mode.themeLabel())
-                            if (state.themeMode == mode) {
-                                Button(
-                                    onClick = { viewModel.setThemeMode(mode) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) { Text(label) }
-                            } else {
-                                OutlinedButton(
-                                    onClick = { viewModel.setThemeMode(mode) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) { Text(label) }
-                            }
-                        }
-                    }
-                } else {
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                        ThemeMode.entries.forEachIndexed { index, mode ->
-                            SegmentedButton(
-                                selected = state.themeMode == mode,
-                                onClick = { viewModel.setThemeMode(mode) },
-                                shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
-                            ) { Text(stringResource(mode.themeLabel()), maxLines = 1) }
-                        }
-                    }
-                }
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column {
-                Text(
-                    text = stringResource(Res.string.profile_daily_reminders),
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                Text(
-                    text = stringResource(
-                        if (state.remindersEnabled) Res.string.common_on else Res.string.common_off,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Switch(
-                checked = state.remindersEnabled,
-                onCheckedChange = { enabled ->
-                    if (!enabled) {
-                        viewModel.setRemindersEnabled(false)
-                    } else {
-                        // Ask before arming: the scheduler can only check permission, and a
-                        // reminder armed without it would be delivered to nothing.
-                        requester.request { granted ->
-                            if (granted) {
-                                viewModel.setRemindersEnabled(true)
-                            } else {
-                                viewModel.reportReminderRefused(ReminderOutcome.PERMISSION_DENIED)
-                            }
-                        }
-                    }
+            ThemeSwitch(
+                darkMode = state.themeMode == ThemeMode.DARK,
+                onDarkModeChanged = { enabled ->
+                    viewModel.setThemeMode(if (enabled) ThemeMode.DARK else ThemeMode.LIGHT)
                 },
             )
         }
+
+        ReminderSwitch(
+            enabled = state.remindersEnabled,
+            onEnabledChanged = { enabled ->
+                if (!enabled) {
+                    viewModel.setRemindersEnabled(false)
+                } else {
+                    // Ask before arming: the scheduler can only check permission, and a
+                    // reminder armed without it would be delivered to nothing.
+                    requester.request { granted ->
+                        if (granted) {
+                            viewModel.setRemindersEnabled(true)
+                        } else {
+                            viewModel.reportReminderRefused(ReminderOutcome.PERMISSION_DENIED)
+                        }
+                    }
+                }
+            },
+        )
 
         state.reminderNotice?.let { outcome ->
             Text(
@@ -456,7 +420,7 @@ private fun DeveloperLink(
                 .weight(1f)
                 .padding(start = Spacing.small),
         )
-        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+        AnimatedIcon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
     }
 }
 
@@ -487,11 +451,7 @@ private fun DeveloperInfo(
             .padding(horizontal = Spacing.small, vertical = Spacing.xSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = Icons.Default.Info,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        VersionInfoIcon()
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
@@ -507,8 +467,140 @@ private fun DeveloperInfo(
     }
 }
 
-private fun ThemeMode.themeLabel(): StringResource = when (this) {
-    ThemeMode.SYSTEM -> Res.string.profile_theme_system
-    ThemeMode.LIGHT -> Res.string.profile_theme_light
-    ThemeMode.DARK -> Res.string.profile_theme_dark
+@Composable
+private fun VersionInfoIcon() {
+    val transition = rememberInfiniteTransition(label = "versionInfo")
+    val lift by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "versionInfoLift",
+    )
+    val scale by transition.animateFloat(
+        initialValue = 0.94f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "versionInfoScale",
+    )
+    Image(
+        painter = painterResource(Res.drawable.version_info),
+        contentDescription = null,
+        modifier = Modifier
+            .size(20.dp)
+            .graphicsLayer {
+                translationY = lift
+                scaleX = scale
+                scaleY = scale
+            },
+    )
+}
+
+@Composable
+private fun ThemeSwitch(
+    darkMode: Boolean,
+    onDarkModeChanged: (Boolean) -> Unit,
+) {
+    JournalCard(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.medium, vertical = Spacing.small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AnimatedIcon(
+                imageVector = if (darkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp),
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = Spacing.small),
+            ) {
+                Text(
+                    text = stringResource(
+                        if (darkMode) Res.string.profile_theme_dark else Res.string.profile_theme_light,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = stringResource(Res.string.profile_appearance_section),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = darkMode,
+                onCheckedChange = onDarkModeChanged,
+                thumbContent = {
+                    AnimatedIcon(
+                        imageVector = if (darkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ReminderSwitch(
+    enabled: Boolean,
+    onEnabledChanged: (Boolean) -> Unit,
+) {
+    JournalCard(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.medium, vertical = Spacing.small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AnimatedIcon(
+                imageVector = if (enabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp),
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = Spacing.small),
+            ) {
+                Text(
+                    text = stringResource(Res.string.profile_daily_reminders),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = stringResource(if (enabled) Res.string.common_on else Res.string.common_off),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = onEnabledChanged,
+                thumbContent = {
+                    AnimatedIcon(
+                        imageVector = if (enabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+            )
+        }
+    }
 }

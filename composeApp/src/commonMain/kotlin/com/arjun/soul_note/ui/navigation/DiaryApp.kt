@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
@@ -13,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -25,6 +26,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.foundation.Image
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -37,7 +45,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,6 +61,11 @@ import com.arjun.soul_note.resources.nav_back
 import com.arjun.soul_note.resources.nav_entry
 import com.arjun.soul_note.resources.nav_profile
 import com.arjun.soul_note.resources.nav_settings
+import com.arjun.soul_note.resources.tab_calendar
+import com.arjun.soul_note.resources.tab_diary
+import com.arjun.soul_note.resources.tab_home
+import com.arjun.soul_note.resources.tab_mood
+import com.arjun.soul_note.resources.tab_settings
 import com.arjun.soul_note.resources.diary_search
 import com.arjun.soul_note.ui.adaptive.ProvideWindowWidthClass
 import com.arjun.soul_note.ui.theme.PaperSurface
@@ -66,6 +83,7 @@ import com.arjun.soul_note.ui.profile.ProfileScreen
 import com.arjun.soul_note.ui.settings.SettingsScreen
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.painterResource
 import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -124,12 +142,9 @@ fun DiaryApp(
                                 selected = item == topLevel,
                                 onClick = { navController.switchTab(item, topLevel) },
                                 icon = {
-                                    Icon(
-                                        imageVector = item.icon,
-                                        contentDescription = stringResource(item.labelRes),
-                                    )
+                                    TabIcon(item, selected = item == topLevel)
                                 },
-                                label = { Text(stringResource(item.labelRes)) },
+                                label = { TabLabel(item, selected = item == topLevel) },
                             )
                         }
                     }
@@ -198,9 +213,6 @@ private fun CompactNavigationBar(
     navController: NavHostController,
 ) {
     BoxWithConstraints {
-        // Five labels need more than a 360dp phone can give them. Keep the full accessible
-        // names on the icons, but use an icon-first bar until there is room for each label.
-        val showLabels = maxWidth >= 390.dp
         NavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,21 +231,87 @@ private fun CompactNavigationBar(
                     selected = item == topLevel,
                     onClick = { navController.switchTab(item, topLevel) },
                     icon = {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = stringResource(item.labelRes),
-                        )
+                        TabIcon(item, selected = item == topLevel)
                     },
-                    label = if (showLabels) {
-                        { Text(stringResource(item.labelRes), maxLines = 1) }
-                    } else {
-                        null
-                    },
-                    alwaysShowLabel = showLabels,
+                    label = { TabLabel(item, selected = item == topLevel) },
+                    alwaysShowLabel = true,
                 )
             }
         }
     }
+}
+
+@Composable
+private fun TabIcon(item: TopLevelDestination, selected: Boolean) {
+    val asset = when (item) {
+        TopLevelDestination.DASHBOARD -> Res.drawable.tab_home
+        TopLevelDestination.DIARY -> Res.drawable.tab_diary
+        TopLevelDestination.CALENDAR -> Res.drawable.tab_calendar
+        TopLevelDestination.PROFILE -> Res.drawable.tab_settings
+        TopLevelDestination.MOOD -> Res.drawable.tab_mood
+    }
+    val motion = rememberInfiniteTransition(label = "tab-icon-${item.name}")
+    val lift by motion.animateFloat(
+        initialValue = -0.7f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1_450,
+                delayMillis = item.ordinal * 90,
+                easing = FastOutSlowInEasing,
+            ),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "tab-icon-lift",
+    )
+    Image(
+        painter = painterResource(asset),
+        contentDescription = stringResource(item.labelRes),
+        modifier = Modifier
+            .size(26.dp)
+            .graphicsLayer {
+                translationY = lift * density
+                val emphasis = if (selected) 1.08f else 1f
+                scaleX = emphasis
+                scaleY = emphasis
+            },
+    )
+}
+
+@Composable
+private fun TabLabel(item: TopLevelDestination, selected: Boolean) {
+    val motion = rememberInfiniteTransition(label = "tab-label-${item.name}")
+    val bounce by motion.animateFloat(
+        initialValue = 0f,
+        targetValue = -0.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1_250,
+                delayMillis = item.ordinal * 110,
+                easing = FastOutSlowInEasing,
+            ),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "tab-label-bounce",
+    )
+    Text(
+        text = stringResource(item.labelRes),
+        maxLines = 1,
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontSize = 8.sp,
+            shadow = Shadow(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f),
+                offset = Offset(0f, 1.5f),
+                blurRadius = 0f,
+            ),
+        ),
+        modifier = Modifier.graphicsLayer {
+            translationY = bounce * density
+            val emphasis = if (selected) 1.05f else 1f
+            scaleX = emphasis
+            scaleY = emphasis
+        },
+    )
 }
 
 /** Switches tabs, keeping one instance per tab and restoring where the user left it. */
@@ -280,7 +358,7 @@ private fun AppTopBar(
                     },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge,
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    leadingIcon = { AnimatedIcon(Icons.Default.Search, contentDescription = null) },
                     shape = DiaryShapes.extraLarge,
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -298,7 +376,7 @@ private fun AppTopBar(
         navigationIcon = {
             if (showBackArrow) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
+                    AnimatedIcon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(Res.string.nav_back),
                     )

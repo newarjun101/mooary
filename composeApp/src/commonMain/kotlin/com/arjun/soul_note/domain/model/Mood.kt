@@ -142,5 +142,5 @@ object FirestorePaths {
      * in a document id would also make it appear in every log line and error message that
      * mentions a path, which is the opposite of what the privacy rules want.
      */
-    fun device(userId: String, tokenHash: String) = "$USERS/$userId/$DEVICES/$tokenHash"
+    fun device(userId: String, deviceKeyHash: String) = "$USERS/$userId/$DEVICES/$deviceKeyHash"
 }

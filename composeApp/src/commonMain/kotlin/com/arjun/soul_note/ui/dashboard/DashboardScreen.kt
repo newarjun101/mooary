@@ -20,7 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -62,6 +62,9 @@ import com.arjun.soul_note.resources.dashboard_range_12w
 import com.arjun.soul_note.resources.dashboard_range_1y
 import com.arjun.soul_note.resources.dashboard_range_30d
 import com.arjun.soul_note.resources.dashboard_range_7d
+import com.arjun.soul_note.resources.dashboard_range_custom
+import com.arjun.soul_note.resources.dashboard_range_end
+import com.arjun.soul_note.resources.dashboard_range_start
 import com.arjun.soul_note.resources.dashboard_range_dates
 import com.arjun.soul_note.resources.dashboard_recent_entries
 import com.arjun.soul_note.resources.dashboard_records
@@ -74,6 +77,7 @@ import com.arjun.soul_note.resources.state_loading_diary
 import com.arjun.soul_note.ui.base.SessionState
 import com.arjun.soul_note.ui.base.rememberViewModel
 import com.arjun.soul_note.ui.components.DiaryEntryCard
+import com.arjun.soul_note.ui.components.DateSelector
 import com.arjun.soul_note.ui.components.LoadingState
 import com.arjun.soul_note.ui.components.SectionHeader
 import com.arjun.soul_note.ui.components.Stat
@@ -155,7 +159,7 @@ fun DashboardScreen(
                     modifier = Modifier.padding(Spacing.large),
                     verticalArrangement = Arrangement.spacedBy(Spacing.medium),
                 ) {
-                    Icon(
+                    AnimatedIcon(
                         imageVector = Icons.Default.EditNote,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
@@ -182,7 +186,7 @@ fun DashboardScreen(
                         )
                     }
                     Button(onClick = { onOpenEditor(null) }) {
-                        Icon(Icons.Default.EditNote, contentDescription = null, modifier = Modifier.size(18.dp))
+                        AnimatedIcon(Icons.Default.EditNote, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(Spacing.small))
                         Text(stringResource(Res.string.diary_new_entry))
                     }
@@ -335,7 +339,7 @@ fun DashboardScreen(
                 DiaryEntryCard(
                     entry = entry,
                     onClick = { onOpenEditor(entry.id) },
-                    onToggleFavorite = {},
+                    onToggleFavorite = { viewModel.onFavouriteToggled(entry) },
                 )
             }
         }
@@ -351,14 +355,18 @@ private fun RangePicker(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showCustomFields by remember(selected) { mutableStateOf(selected is TimeRange.Custom) }
+    var customStart by remember(selected, today) { mutableStateOf((selected as? TimeRange.Custom)?.start ?: TimeRange.Last30Days.windowStart(today)) }
+    var customEnd by remember(selected, today) { mutableStateOf((selected as? TimeRange.Custom)?.end ?: today) }
     val selectedDates = stringResource(
         Res.string.dashboard_range_dates,
         entryDateLabel(selected.windowStart(today)),
-        entryDateLabel(today),
+        entryDateLabel(selected.window(today).endInclusive),
     )
 
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Spacing.small)) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .paperCard(
                 shape = DiaryShapes.extraLarge,
@@ -369,7 +377,7 @@ private fun RangePicker(
             onClick = { expanded = true },
             modifier = Modifier.fillMaxWidth().padding(Spacing.xSmall),
         ) {
-            Icon(Icons.Default.CalendarMonth, contentDescription = null,
+            AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(Spacing.small))
             Column(modifier = Modifier.weight(1f)) {
@@ -377,10 +385,10 @@ private fun RangePicker(
                 Text(selectedDates, style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            AnimatedIcon(Icons.Default.ArrowDropDown, contentDescription = null)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            TimeRange.entries.forEach { range ->
+            TimeRange.presets.filterNotNull().forEach { range ->
                 DropdownMenuItem(
                     text = {
                         Column {
@@ -393,19 +401,52 @@ private fun RangePicker(
                             )
                         }
                     },
-                    leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
+                    leadingIcon = { AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null) },
                     onClick = { expanded = false; onSelect(range) },
+                )
+            }
+            DropdownMenuItem(
+                text = { Text(stringResource(Res.string.dashboard_range_custom)) },
+                leadingIcon = { AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null) },
+                onClick = { expanded = false; showCustomFields = true },
+            )
+        }
+    }
+    if (showCustomFields) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.small)) {
+            Box(Modifier.weight(1f)) {
+                DateSelector(
+                    label = stringResource(Res.string.dashboard_range_start),
+                    date = customStart,
+                    onDateSelected = { start ->
+                        customStart = start
+                        if (customEnd < start) customEnd = start
+                        onSelect(TimeRange.Custom(customStart, customEnd))
+                    },
+                )
+            }
+            Box(Modifier.weight(1f)) {
+                DateSelector(
+                    label = stringResource(Res.string.dashboard_range_end),
+                    date = customEnd,
+                    onDateSelected = { end ->
+                        customEnd = if (end < customStart) customStart else end
+                        onSelect(TimeRange.Custom(customStart, customEnd))
+                    },
                 )
             }
         }
     }
+    }
 }
 
 private fun TimeRange.shortLabel(): StringResource = when (this) {
-    TimeRange.Last7Days -> Res.string.dashboard_range_7d
-    TimeRange.Last30Days -> Res.string.dashboard_range_30d
-    TimeRange.Last12Weeks -> Res.string.dashboard_range_12w
-    TimeRange.Last12Months -> Res.string.dashboard_range_1y
+    is TimeRange.Last7Days -> Res.string.dashboard_range_7d
+    is TimeRange.Last30Days -> Res.string.dashboard_range_30d
+    is TimeRange.Last12Weeks -> Res.string.dashboard_range_12w
+    is TimeRange.Last12Months -> Res.string.dashboard_range_1y
+    is TimeRange.Custom -> Res.string.dashboard_range_custom
+    else -> Res.string.dashboard_range_custom
 }
 
 @Composable
@@ -447,7 +488,7 @@ private fun EmptyPeriodCard(onWrite: () -> Unit) {
                 .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
+            AnimatedIcon(
                 imageVector = Icons.Default.EditNote,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,

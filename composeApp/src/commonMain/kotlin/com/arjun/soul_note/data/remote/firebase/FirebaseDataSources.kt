@@ -198,7 +198,14 @@ class FirebaseAuthDataSource(
 
     override suspend fun restoreSession(): Result<RemoteIdentity?> = suspendRunCatchingApp {
         val stored = tokenStore.read()
-        if (stored.isNullOrBlank()) return@suspendRunCatchingApp null
+        if (stored.isNullOrBlank()) {
+            // Firestore never accepts an unauthenticated write. Anonymous Auth gives the first
+            // launch a rules-bound uid so its device registration can be stored before the
+            // person decides whether to create an account.
+            val anonymous = client.signInAnonymously()
+            persist(anonymous)
+            return@suspendRunCatchingApp anonymous.toIdentity()
+        }
 
         val cached = AuthSessionCodec.decode(stored)
         val restored = if (cached.isExpired(nowEpochSeconds())) {

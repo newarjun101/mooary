@@ -91,6 +91,12 @@ To enable sync, supply `FirebaseConfig.plist` in the app bundle. It must carry `
 is generated from your own `GoogleService-Info.plist` and is git-ignored, so no key is ever
 committed.
 
+Firebase Analytics and Crashlytics also require the registered iOS app's original
+`GoogleService-Info.plist` in `iosApp/iosApp/`. Register the bundle identifier
+`com.arjun.soul_note` in Firebase, download that file, and keep it git-ignored. At launch the
+host initializes Analytics and Crashlytics only when this plist is present, preserving the
+offline-first behavior for local builds without Firebase configuration.
+
 APNs and the Push Notifications capability are **not** configured. Nothing in this app sends a
 push, and adding the capability without an APNs key produces a provisioning error rather than a
 working feature.

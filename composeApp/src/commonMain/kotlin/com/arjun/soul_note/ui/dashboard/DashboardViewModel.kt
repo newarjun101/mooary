@@ -10,6 +10,7 @@ import com.arjun.soul_note.domain.model.OverviewStatistics
 import com.arjun.soul_note.domain.model.TimeRange
 import com.arjun.soul_note.domain.usecase.diary.ObserveDiaryEntriesUseCase
 import com.arjun.soul_note.domain.usecase.diary.ObserveFilteredDiaryEntriesUseCase
+import com.arjun.soul_note.domain.usecase.diary.ToggleFavoriteEntryUseCase
 import com.arjun.soul_note.domain.usecase.mood.GetMoodHistoryUseCase
 import com.arjun.soul_note.domain.usecase.mood.ObserveFilteredMoodsUseCase
 import com.arjun.soul_note.domain.usecase.stats.CalculateDashboardStatisticsUseCase
@@ -48,6 +49,7 @@ class DashboardViewModel(
     observeFilteredMoods: ObserveFilteredMoodsUseCase,
     private val calculateDashboard: CalculateDashboardStatisticsUseCase,
     private val calculateOverview: CalculateOverviewStatisticsUseCase,
+    private val toggleFavorite: ToggleFavoriteEntryUseCase,
     observeFilteredEntries: ObserveFilteredDiaryEntriesUseCase,
     private val userId: String,
     private val today: LocalDate,
@@ -55,7 +57,7 @@ class DashboardViewModel(
 ) : BaseViewModel() {
 
     private val name = MutableStateFlow(greetingName)
-    private val range = MutableStateFlow(TimeRange.Last30Days)
+    private val range = MutableStateFlow<TimeRange>(TimeRange.Last30Days)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val window = range.flatMapLatest { selected ->
@@ -97,6 +99,13 @@ class DashboardViewModel(
 
     fun onRangeSelected(selected: TimeRange) {
         range.value = selected
+    }
+
+    fun onFavouriteToggled(entry: DiaryEntry) {
+        launch {
+            toggleFavorite(userId, entry, !entry.isFavorite)
+                .onFailure { report(it.toAppError()) }
+        }
     }
 
     /** Pull-to-refresh: asks the engine for a pass, then waits for the state to settle. */

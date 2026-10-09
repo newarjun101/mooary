@@ -29,13 +29,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
+import com.arjun.soul_note.ui.components.ActionImageIcon
+import com.arjun.soul_note.ui.components.EntryActionIcon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -51,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.arjun.soul_note.domain.model.EmotionCatalog
 import com.arjun.soul_note.ui.base.SessionState
@@ -219,7 +222,7 @@ fun DiaryEditorScreen(
                 enabled = state.canSave,
                 modifier = Modifier.weight(1f),
             ) {
-                Icon(Icons.Default.Save, contentDescription = null)
+                AnimatedIcon(Icons.Default.Save, contentDescription = null)
                 Text(
                     text = stringResource(
                         if (state.isSaving) Res.string.editor_saving else Res.string.editor_save,
@@ -232,10 +235,10 @@ fun DiaryEditorScreen(
                     viewModel.delete()
                     onDone()
                 }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
+                    ActionImageIcon(
+                        action = EntryActionIcon.DELETE,
                         contentDescription = stringResource(Res.string.editor_delete),
-                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
@@ -279,7 +282,7 @@ private fun DiaryUpdateDialog(
                             Text(stringResource(Res.string.editor_update_cancel))
                         }
                         Button(onClick = onConfirm) {
-                            Icon(Icons.Default.Save, contentDescription = null)
+                            AnimatedIcon(Icons.Default.Save, contentDescription = null)
                             Text(
                                 text = stringResource(Res.string.editor_update_confirm),
                                 modifier = Modifier.padding(start = Spacing.small),

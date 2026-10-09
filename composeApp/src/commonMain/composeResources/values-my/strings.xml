@@ -16,11 +16,11 @@
     -->
 
     <!-- Navigation -->
-    <string name="nav_dashboard">အန်းချုပ်</string>
+    <string name="nav_dashboard">အနှစ်ချုပ်</string>
     <string name="app_name">SoulNote</string>
-    <string name="nav_diary">နောက်တွဲ</string>
+    <string name="nav_diary">နေ့စဉ်မှတ်တမ်း</string>
     <string name="nav_mood">ခံစားချက်</string>
-    <string name="nav_calendar">ပြက်လက်</string>
+    <string name="nav_calendar">ပြက္ခဒိန်</string>
     <string name="nav_profile">အကောင့်</string>
     <string name="nav_account">အကောင့်</string>
     <string name="nav_entry">မှတ်တမ်း</string>
@@ -93,6 +93,9 @@
     <string name="dashboard_range_30d">30 ရက်</string>
     <string name="dashboard_range_12w">12 ပတ်</string>
     <string name="dashboard_range_1y">1 နှစ်</string>
+    <string name="dashboard_range_custom">စိတ်ကြိုက်ကာလ</string>
+    <string name="dashboard_range_start">စတင်ရက်</string>
+    <string name="dashboard_range_end">ပြီးဆုံးရက်</string>
     <string name="dashboard_range_dates">%1$s မှ %2$s</string>
     <string name="dashboard_mood_distribution">ခံစားချက် အသုံးအပြုံ</string>
     <string name="dashboard_mood_trend">အချိန်အလိုက် ခံစားချက်</string>
@@ -200,8 +203,8 @@
     <string name="profile_sync_now">ယခု တူညီပါ</string>
     <string name="profile_pending">ဆိုင်ငံ့</string>
     <string name="profile_conflicts">ကိုယ်ပိုင်းတူညီမှုများ</string>
-    <string name="profile_last_synced">နောက်ဆုံး တူညီချိန်</string>
-    <string name="profile_never_synced">မလုံးဝ</string>
+    <string name="profile_last_synced">နောက်ဆုံး စင့်ခ်</string>
+    <string name="profile_never_synced">မရှိသေး</string>
     <string name="profile_appearance_section">အပြင်အဆင်</string>
     <string name="profile_theme_system">စနစ်အတိုင်း</string>
     <string name="profile_theme_light">အလင်း</string>
@@ -286,7 +289,7 @@
     <string name="month_12">ဒီဇင်ဘာ</string>
 
     <!-- ဆက်တင်များ -->
-    <string name="nav_settings">ဆက်တင်များ</string>
+    <string name="nav_settings">ဆက်တင်</string>
     <string name="settings_title">ဆက်တင်များ</string>
     <string name="settings_language_title">ဘာသာစကား</string>
     <string name="settings_language_english">အင်္ဂလိပ်</string>

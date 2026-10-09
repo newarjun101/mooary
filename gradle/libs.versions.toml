@@ -18,6 +18,8 @@ junit = "4.13.2"
 androidxJunit = "1.3.0"
 espresso = "3.7.0"
 firebaseMessaging = "24.1.2"
+firebaseBom = "35.0.0"
+firebaseCrashlyticsPlugin = "3.0.8"
 compottie = "2.0.0"
 
 android-compileSdk = "37"
@@ -77,6 +79,9 @@ espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref =
 # are. Taken for `androidMain` only -- see the manifest and FcmTokenRegistrar for the flag
 # that keeps it inert when Cloud Messaging is not enabled on the project.
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -86,3 +91,4 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }

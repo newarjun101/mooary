@@ -1,6 +1,9 @@
 import SwiftUI
 import UIKit
 import ComposeApp
+import FirebaseAnalytics
+import FirebaseCore
+import FirebaseCrashlytics
 
 /// The page colour, mirroring `Paper` and `Espresso` in `ui/theme/Color.kt`.
 ///
@@ -60,6 +63,10 @@ private func paintWindowInPageInk() {
 
 @main
 struct iosApp: App {
+    init() {
+        configureFirebaseIfAvailable()
+    }
+
     var body: some Scene {
         WindowGroup {
             ComposeView()
@@ -81,4 +88,20 @@ struct iosApp: App {
                 .background(Color(uiColor: .soulNotePage))
         }
     }
+}
+
+/// Enables Firebase only for app builds that include the registered iOS configuration.
+///
+/// Local builds intentionally run without Firebase, so calling `FirebaseApp.configure()` when
+/// the plist is absent would turn the offline-first startup path into a configuration failure.
+/// The official Firebase plist keeps the iOS app identifier separate from the shared sync file.
+private func configureFirebaseIfAvailable() {
+    guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
+        return
+    }
+    guard FirebaseApp.app() == nil else { return }
+
+    FirebaseApp.configure()
+    Analytics.setAnalyticsCollectionEnabled(true)
+    Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
 }

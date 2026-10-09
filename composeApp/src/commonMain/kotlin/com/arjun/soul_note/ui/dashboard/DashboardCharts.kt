@@ -832,7 +832,7 @@ private fun Path.cubicSmoothTo(points: List<Offset>) {
 private fun axisLabel(date: LocalDate?, range: TimeRange): String {
     if (date == null) return ""
     return when (range) {
-        TimeRange.Last7Days, TimeRange.Last30Days, TimeRange.Last12Weeks -> date.day.toString()
+        TimeRange.Last7Days, TimeRange.Last30Days, TimeRange.Last12Weeks, is TimeRange.Custom -> date.day.toString()
         TimeRange.Last12Months -> stringResource(monthNameRes(date.month.number))
     }
 }

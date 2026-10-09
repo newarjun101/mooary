@@ -17,7 +17,6 @@ import com.arjun.soul_note.resources.mood_date_field
 import com.arjun.soul_note.ui.labels.entryDateLabel
 import com.arjun.soul_note.ui.labels.moodLabel
 import com.arjun.soul_note.ui.labels.moodName
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import com.arjun.soul_note.resources.Res
 import com.arjun.soul_note.resources.mood_empty_body
@@ -47,12 +45,12 @@ import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
+import com.arjun.soul_note.ui.components.ActionImageIcon
+import com.arjun.soul_note.ui.components.EntryActionIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -67,10 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
@@ -286,23 +281,13 @@ fun MoodScreen(
                             }
                             val day = entryDateLabel(entry.date)
                             MoodRowAction(
-                                icon = Icons.Default.Edit,
+                                action = EntryActionIcon.EDIT,
                                 contentDescription = stringResource(Res.string.mood_edit_entry, day),
-                                container = MaterialTheme.colorScheme.primaryContainer,
-                                content = MaterialTheme.colorScheme.onPrimaryContainer,
                                 onClick = { viewModel.onEdit(entry) },
                             )
                             MoodRowAction(
-                                icon = Icons.Default.Delete,
+                                action = EntryActionIcon.DELETE,
                                 contentDescription = stringResource(Res.string.mood_delete_entry, day),
-                                // `errorContainer` measured 1.02:1 against `primaryContainer` --
-                                // this palette's dusty rose and pale pink are the same colour to
-                                // the eye, so tinting both discs made the destructive action
-                                // indistinguishable from the benign one. The glyph carries it
-                                // instead: brick red reads as destructive on its own, and a
-                                // neutral disc keeps the two equally easy to hit.
-                                container = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                content = MaterialTheme.colorScheme.error,
                                 onClick = { pendingDelete = entry },
                             )
                         }
@@ -392,25 +377,19 @@ fun MoodScreen(
 }
 
 /**
- * A row's secondary action: a small tinted disc holding a small glyph.
+ * A row's secondary action keeps a full touch target while the supplied artwork owns its
+ * rounded background.
  *
- * Two sizes, deliberately. The disc is [DISC_DIAMETER] and the glyph [GLYPH_SIZE], which is
- * what makes the row read as a card with two quiet controls rather than a card with two
- * full-weight buttons competing with the mood name for attention. The *touch* target stays
- * [TOUCH_TARGET] -- an outer box that is transparent and does the clicking -- because
- * shrinking a 34dp disc to match the glyph is how these end up unhittable on a 420dpi phone,
- * and an edit you cannot tap is the same as an edit that does not work.
+ * The *touch* target stays [TOUCH_TARGET] -- an outer box that is transparent and does the
+ * clicking -- so the compact artwork remains easy to use.
  *
- * The interaction source is passed in with no indication, so there is no ripple: the disc is
- * already the whole button, and a ripple inside a 34dp circle reads as a smudge on the paper
- * rather than as feedback. The `pressScale` elsewhere in the app is the press response here.
+ * The interaction source is passed in with no indication, so the image remains crisp and the
+ * scale itself is the press response.
  */
 @Composable
 private fun MoodRowAction(
-    icon: ImageVector,
+    action: EntryActionIcon,
     contentDescription: String,
-    container: Color,
-    content: Color,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -426,30 +405,20 @@ private fun MoodRowAction(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Box(
+        ActionImageIcon(
+            action = action,
+            contentDescription = contentDescription,
             modifier = Modifier
-                .size(DISC_DIAMETER)
+                .size(16.dp)
                 .graphicsLayer {
                     val scale = if (pressed) PRESSED_SCALE else 1f
                     scaleX = scale
                     scaleY = scale
-                }
-                .clip(CircleShape)
-                .background(container),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = content,
-                modifier = Modifier.size(GLYPH_SIZE),
-            )
-        }
+                },
+        )
     }
 }
 
 /** Kept out of the call site so the touch target is one number, not three copies of one. */
-private val TOUCH_TARGET = 44.dp
-private val DISC_DIAMETER = 32.dp
-private val GLYPH_SIZE = 17.dp
+private val TOUCH_TARGET = 28.dp
 private const val PRESSED_SCALE = 0.9f

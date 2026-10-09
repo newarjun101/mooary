@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import com.arjun.soul_note.resources.Res
 import com.arjun.soul_note.resources.common_favourite_add
 import com.arjun.soul_note.resources.common_favourite_remove
+import com.arjun.soul_note.resources.favourite_filled
+import com.arjun.soul_note.resources.favourite_outline
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,22 +26,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Image
 import com.arjun.soul_note.domain.model.DiaryEntry
 import com.arjun.soul_note.domain.model.Emotion
 import com.arjun.soul_note.domain.model.Mood
@@ -52,6 +55,7 @@ import com.arjun.soul_note.ui.theme.Spacing
 import com.arjun.soul_note.ui.theme.moodColors
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * Single-select mood picker.
@@ -255,17 +259,12 @@ fun DiaryEntryCard(
                     checked = entry.isFavorite,
                     onCheckedChange = { onToggleFavorite() },
                 ) {
-                    Icon(
-                        imageVector = if (entry.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                    FavouriteHeartIcon(
+                        isFavourite = entry.isFavorite,
                         contentDescription = stringResource(
                             if (entry.isFavorite) Res.string.common_favourite_remove
                             else Res.string.common_favourite_add,
                         ),
-                        tint = if (entry.isFavorite) {
-                            MaterialTheme.colorScheme.tertiary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
                     )
                 }
             }
@@ -273,8 +272,42 @@ fun DiaryEntryCard(
     }
 }
 
+@Composable
+private fun FavouriteHeartIcon(
+    isFavourite: Boolean,
+    contentDescription: String,
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (isFavourite) 1.12f else 1f,
+        animationSpec = spring(dampingRatio = 0.58f, stiffness = 520f),
+        label = "favouriteHeartScale",
+    )
+    val turn by animateFloatAsState(
+        targetValue = if (isFavourite) 6f else 0f,
+        animationSpec = spring(dampingRatio = 0.62f, stiffness = 460f),
+        label = "favouriteHeartTurn",
+    )
+    Image(
+        painter = painterResource(
+            if (isFavourite) Res.drawable.favourite_filled else Res.drawable.favourite_outline,
+        ),
+        contentDescription = contentDescription,
+        modifier = Modifier
+            .size(18.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                rotationZ = turn
+            },
+    )
+}
+
 /** A single labelled number in the Home and Profile summaries. */
-data class Stat(val label: String, val value: String)
+data class Stat(
+    val label: String,
+    val value: String,
+    val compact: Boolean = false,
+)
 
 /**
  * Small labelled number used by the Home and Profile summaries.
@@ -286,6 +319,7 @@ data class Stat(val label: String, val value: String)
 fun StatTile(
     label: String,
     value: String,
+    compact: Boolean = false,
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.colorScheme.primary,
 ) {
@@ -303,7 +337,7 @@ fun StatTile(
                 text = value,
                 // Serif at display scale: the number is the loudest thing on the screen for
                 // a moment and then settles back, which is what a headline does.
-                style = MaterialTheme.typography.headlineMedium,
+                style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineMedium,
                 color = accent,
                 maxLines = 1,
             )
@@ -340,6 +374,7 @@ fun StatTileGrid(
                     StatTile(
                         label = stat.label,
                         value = stat.value,
+                        compact = stat.compact,
                         modifier = Modifier.weight(1f),
                     )
                 }

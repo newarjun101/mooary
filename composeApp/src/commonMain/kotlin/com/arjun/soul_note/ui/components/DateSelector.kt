@@ -6,7 +6,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
@@ -38,7 +38,7 @@ fun DateSelector(
 ) {
     var showingPicker by remember { mutableStateOf(false) }
     OutlinedButton(onClick = { showingPicker = true }, modifier = modifier) {
-        Icon(Icons.Default.CalendarMonth, contentDescription = null)
+        AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null)
         Text(stringResource(Res.string.date_selector_label, label, date.toShortLabel()))
     }
 

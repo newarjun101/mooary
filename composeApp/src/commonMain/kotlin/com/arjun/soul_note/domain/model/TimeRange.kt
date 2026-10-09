@@ -15,19 +15,23 @@ import kotlinx.datetime.number
  * days belong in this bar" is decided in exactly one place and can be unit-tested without
  * a clock or a UI.
  */
-enum class TimeRange {
+sealed class TimeRange {
     /** Seven daily buckets, today included. */
-    Last7Days,
+    data object Last7Days : TimeRange()
 
     /** Thirty daily buckets, today included. */
-    Last30Days,
+    data object Last30Days : TimeRange()
 
     /** Twelve weekly buckets, each starting Monday, the last one the current week. */
-    Last12Weeks,
+    data object Last12Weeks : TimeRange()
 
     /** Twelve monthly buckets, each starting on the 1st, the last one the current month. */
-    Last12Months,
-    ;
+    data object Last12Months : TimeRange()
+
+    /** A user-selected inclusive period. Custom periods use one daily bucket per day. */
+    data class Custom(val start: LocalDate, val end: LocalDate) : TimeRange() {
+        init { require(start <= end) { "Custom range start must not be after its end" } }
+    }
 
     /** How many bars/points the charts draw for this range. */
     val bucketCount: Int
@@ -36,6 +40,7 @@ enum class TimeRange {
             Last30Days -> 30
             Last12Weeks -> 12
             Last12Months -> 12
+            is Custom -> LocalDates.daysBetween(start, end) + 1
         }
 
     /**
@@ -56,13 +61,21 @@ enum class TimeRange {
 
         Last12Months ->
             (bucketCount - 1 downTo 0).map { monthsAgo -> monthStartMonthsAgo(today, monthsAgo) }
+
+        is Custom -> (0 until bucketCount).map { LocalDates.plusDays(start, it) }
     }
 
     /** First day covered, inclusive. The last day covered is always [today]. */
-    fun windowStart(today: LocalDate): LocalDate = bucketStarts(today).first()
+    fun windowStart(today: LocalDate): LocalDate = when (this) {
+        is Custom -> start
+        else -> bucketStarts(today).first()
+    }
 
     /** The inclusive day range this range covers. */
-    fun window(today: LocalDate): ClosedRange<LocalDate> = windowStart(today)..today
+    fun window(today: LocalDate): ClosedRange<LocalDate> = windowStart(today)..when (this) {
+        is Custom -> end
+        else -> today
+    }
 
     /**
      * Which bucket [date] belongs to, or `null` when it falls outside the window.
@@ -72,7 +85,7 @@ enum class TimeRange {
      */
     fun bucketIndexOf(date: LocalDate, today: LocalDate): Int? {
         val starts = bucketStarts(today)
-        if (date < starts.first() || date > today) return null
+        if (date < starts.first() || date > window(today).endInclusive) return null
         return starts.indexOfLast { it <= date }
     }
 
@@ -81,11 +94,11 @@ enum class TimeRange {
         val starts = bucketStarts(today)
         require(index in starts.indices) { "bucket $index out of range for $this" }
         val start = starts[index]
-        val end = starts.getOrNull(index + 1)?.let { LocalDates.minusDays(it, 1) } ?: today
+        val end = starts.getOrNull(index + 1)?.let { LocalDates.minusDays(it, 1) } ?: window(today).endInclusive
         return start..end
     }
 
-    private companion object {
+    companion object {
         const val DAYS_PER_WEEK = 7
         const val MONTHS_PER_YEAR = 12
 
@@ -106,6 +119,12 @@ enum class TimeRange {
             // 1-based month number.
             val remainder = (totalMonths - year * MONTHS_PER_YEAR + MONTHS_PER_YEAR) % MONTHS_PER_YEAR
             return LocalDate(year, remainder + 1, 1)
+        }
+
+        // Nested singleton ranges are initialized lazily on Android. Delaying this list until
+        // it is first requested guarantees every entry is a fully initialized range.
+        val presets: List<TimeRange> by lazy {
+            listOf(Last7Days, Last30Days, Last12Weeks, Last12Months)
         }
     }
 }

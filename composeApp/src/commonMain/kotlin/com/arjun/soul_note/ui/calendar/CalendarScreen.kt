@@ -2,9 +2,11 @@ package com.arjun.soul_note.ui.calendar
 
 import com.arjun.soul_note.ui.labels.monthLabel
 import com.arjun.soul_note.ui.labels.moodName
+import com.arjun.soul_note.core.datetime.LocalDates
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.arjun.soul_note.resources.Res
 import com.arjun.soul_note.resources.calendar_empty_day
@@ -16,6 +18,7 @@ import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -30,10 +33,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -47,6 +51,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.shape.CircleShape
@@ -117,8 +123,41 @@ private fun CalendarContent(
     modifier: Modifier = Modifier,
 ) {
 
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+    // The table deliberately claims a responsive portion of the viewport. Its rows derive
+    // their height from this space, so resizing a desktop window also resizes the calendar.
+    var visibleDayCount by remember { mutableStateOf(0) }
+    val displayedDays = remember(state.days, state.selectedDate, visibleDayCount) {
+        if (visibleDayCount == 0 || state.days.size <= visibleDayCount) state.days else {
+            val selectedIndex = state.days.indexOfFirst { it.date == state.selectedDate }.coerceAtLeast(0)
+            val start = (selectedIndex - (visibleDayCount / 2)).coerceIn(0, state.days.size - visibleDayCount)
+            state.days.subList(start, start + visibleDayCount)
+        }
+    }
+    val tableHeight = when (visibleDayCount) {
+        7 -> 150.dp
+        15 -> 255.dp
+        24 -> 360.dp
+        else -> (maxHeight * 0.52f).coerceAtLeast(300.dp)
+    }
+    val pageBackward = {
+        if (visibleDayCount > 0 && displayedDays.firstOrNull()?.date != state.days.firstOrNull()?.date) {
+            val anchor = state.selectedDate ?: displayedDays.first().date
+            onDateSelected(LocalDates.minusDays(anchor, visibleDayCount).coerceAtLeast(state.days.first().date))
+        } else {
+            onPreviousMonth()
+        }
+    }
+    val pageForward = {
+        if (visibleDayCount > 0 && displayedDays.lastOrNull()?.date != state.days.lastOrNull()?.date) {
+            val anchor = state.selectedDate ?: displayedDays.last().date
+            onDateSelected(LocalDates.plusDays(anchor, visibleDayCount).coerceAtMost(state.days.last().date))
+        } else {
+            onNextMonth()
+        }
+    }
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(Spacing.gutter),
         verticalArrangement = Arrangement.spacedBy(Spacing.medium),
     ) {
@@ -131,17 +170,17 @@ private fun CalendarContent(
                 elevation = Elevation.raised,
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(Spacing.medium),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.medium, vertical = Spacing.small),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(Spacing.small),
                 ) {
                     IconButton(
-                        onClick = onPreviousMonth,
+                        onClick = pageBackward,
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(36.dp)
                             .background(scheme.surface.copy(alpha = 0.72f), CircleShape),
                     ) {
-                        Icon(
+                        AnimatedIcon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = stringResource(Res.string.calendar_previous_month),
                         )
@@ -152,23 +191,30 @@ private fun CalendarContent(
                     ) {
                         Text(
                             text = monthLabel(state.month.month.number, state.month.year),
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             textAlign = TextAlign.Center,
                         )
                         Box(
                             Modifier
                                 .padding(top = Spacing.xSmall)
-                                .size(width = 36.dp, height = 3.dp)
+                                .size(width = 28.dp, height = 2.dp)
                                 .background(scheme.primary, DiaryShapes.extraSmall),
                         )
+                        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xSmall)) {
+                            listOf(7, 15, 24, 0).forEach { count ->
+                                TextButton(onClick = { visibleDayCount = count }) {
+                                    Text(if (count == 0) "Month" else "$count d")
+                                }
+                            }
+                        }
                     }
                     IconButton(
-                        onClick = onNextMonth,
+                        onClick = pageForward,
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(36.dp)
                             .background(scheme.surface.copy(alpha = 0.72f), CircleShape),
                     ) {
-                        Icon(
+                        AnimatedIcon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = stringResource(Res.string.calendar_next_month),
                         )
@@ -178,8 +224,11 @@ private fun CalendarContent(
         }
 
         item(key = "calendar_grid") {
+            Column {
+            val weekCount = displayedDays.chunked(7).size
+            val rowHeight = ((tableHeight - 42.dp) / weekCount).coerceIn(38.dp, 104.dp)
             JournalCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(tableHeight),
                 shape = DiaryShapes.extraLarge,
             ) {
                 Row(
@@ -197,7 +246,7 @@ private fun CalendarContent(
                         )
                     }
                 }
-                state.days.chunked(7).forEachIndexed { weekIndex, week ->
+                displayedDays.chunked(7).forEachIndexed { weekIndex, week ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -214,6 +263,7 @@ private fun CalendarContent(
                                     isToday = day.date == today,
                                     monthKey = state.month,
                                     animationDelayMillis = ((weekIndex * 7 + dayIndex) * 20).coerceAtMost(240),
+                                    rowHeight = rowHeight,
                                     onClick = { onDateSelected(day.date) },
                                     modifier = Modifier.weight(1f),
                                 )
@@ -223,6 +273,7 @@ private fun CalendarContent(
                     }
                 }
                 Spacer(Modifier.height(Spacing.small))
+            }
             }
         }
 
@@ -294,6 +345,7 @@ private fun CalendarContent(
             }
         }
     }
+    }
 }
 
 @Composable
@@ -303,6 +355,7 @@ private fun CalendarCell(
     isToday: Boolean,
     monthKey: LocalDate,
     animationDelayMillis: Int,
+    rowHeight: androidx.compose.ui.unit.Dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -328,7 +381,7 @@ private fun CalendarCell(
 
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .height(rowHeight)
             .padding(2.dp)
             .background(fill, shape)
             // Today needs a mark that survives both states, so it is a ring outside the

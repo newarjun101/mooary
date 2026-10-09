@@ -1,6 +1,13 @@
 package com.arjun.soul_note.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +30,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -39,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -53,6 +61,8 @@ import com.arjun.soul_note.ui.theme.DiaryShapes
 import com.arjun.soul_note.ui.theme.Spacing
 import com.arjun.soul_note.domain.repository.AppLanguage
 import com.arjun.soul_note.resources.Res
+import com.arjun.soul_note.resources.flag_english
+import com.arjun.soul_note.resources.flag_myanmar
 import com.arjun.soul_note.resources.auth_error_title
 import com.arjun.soul_note.resources.common_dismiss
 import com.arjun.soul_note.resources.profile_cancel
@@ -84,6 +94,7 @@ import com.arjun.soul_note.resources.settings_sign_out
 import com.arjun.soul_note.resources.settings_sign_out_confirm_body
 import com.arjun.soul_note.resources.settings_sign_out_confirm_title
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.painterResource
 import org.koin.core.parameter.parametersOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -391,14 +402,10 @@ fun LanguageSelector(
             onClick = { expanded = true },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(
-                imageVector = Icons.Default.Language,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
+            LanguageFlag(selected)
             Spacer(Modifier.width(Spacing.small))
             Text(selectedLabel, modifier = Modifier.weight(1f), textAlign = TextAlign.Start)
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            AnimatedIcon(Icons.Default.ArrowDropDown, contentDescription = null)
         }
         DropdownMenu(
             expanded = expanded,
@@ -415,15 +422,10 @@ fun LanguageSelector(
                 DropdownMenuItem(
                     text = { Text(label) },
                     leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Language,
-                            contentDescription = null,
-                            tint = if (language == selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        LanguageFlag(language)
                     },
                     trailingIcon = if (language == selected) {
-                        { Icon(Icons.Default.Check, contentDescription = null) }
+                        { AnimatedIcon(Icons.Default.Check, contentDescription = null) }
                     } else {
                         null
                     },
@@ -435,6 +437,31 @@ fun LanguageSelector(
             }
         }
     }
+}
+
+@Composable
+private fun LanguageFlag(language: AppLanguage) {
+    val resource = if (language == AppLanguage.ENGLISH) {
+        Res.drawable.flag_english
+    } else {
+        Res.drawable.flag_myanmar
+    }
+    val motion = rememberInfiniteTransition(label = "language-flag-${language.name}")
+    val lift by motion.animateFloat(
+        initialValue = -0.8f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1_350, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "language-flag-lift",
+    )
+    Image(
+        painter = painterResource(resource),
+        contentDescription = null,
+        modifier = Modifier.size(28.dp).graphicsLayer { translationY = lift * density },
+        contentScale = ContentScale.Fit,
+    )
 }
 
 @Composable

@@ -80,13 +80,21 @@ class CalendarViewModel(
     }
 
     fun showPreviousMonth() {
-        month.value = LocalDates.monthStart(month.value.minusMonths(1))
+        val previousMonth = LocalDates.monthStart(month.value.minusMonths(1))
+        month.value = previousMonth
+        // A short calendar format needs an anchor inside the newly displayed month. Keeping
+        // the old October selection while moving to September made the 7-day view fall back
+        // to September's first days instead of showing its final week.
+        selected.value = LocalDates.monthEnd(previousMonth)
     }
 
     fun showNextMonth() {
         val next = LocalDates.monthStart(month.value.plusMonths(1))
         // Never page past the current month: there is nothing there to write about yet.
-        if (next <= today) month.value = next
+        if (next <= today) {
+            month.value = next
+            selected.value = LocalDates.monthStart(next)
+        }
     }
 
     private companion object {

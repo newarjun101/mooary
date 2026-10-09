@@ -27,6 +27,7 @@ class PushRegistrarTest {
 
     private val userId = "user-1"
     private val token = "fcm-token-abcdef0123456789"
+    private val deviceId = "device-identity-abcdef0123456789"
 
     private val config = FirebaseConfig(
         apiKey = "key",
@@ -73,18 +74,20 @@ class PushRegistrarTest {
     private fun registrar(
         fake: Fake = Fake(),
         source: PushTokenSource = PushTokenSource { Result.success(token) },
+        device: DeviceIdentity = DeviceIdentity { Result.success(deviceId) },
     ): FirebasePushRegistrar = FirebasePushRegistrar(
         firestore = firestore(fake),
         transport = source,
+        deviceIdentity = device,
         logger = RecordingLogger(),
     )
 
     @Test
-    fun `a device registers under the user and not the token`() = runTest {
+    fun `a device registers under the user and stable device identity`() = runTest {
         val fake = Fake()
         registrar(fake).register(userId).getOrThrow()
 
-        val expected = "users/$userId/devices/${hashPushToken(token)}"
+        val expected = "users/$userId/devices/${hashDeviceIdentity(deviceId)}"
         assertEquals(1, fake.urls.size)
         assertTrue(
             fake.names.single().endsWith(expected),
@@ -109,19 +112,20 @@ class PushRegistrarTest {
         push.register(userId).getOrThrow()
 
         assertEquals(2, fake.urls.size)
-        assertEquals(fake.names.first(), fake.names.last(), "the same token must reuse its document")
+        assertEquals(fake.names.first(), fake.names.last(), "the same device must reuse its document")
     }
 
     @Test
-    fun `different tokens land on different documents`() = runTest {
+    fun `a rotated token overwrites the same device document`() = runTest {
         val first = Fake()
         val second = Fake()
         registrar(first, PushTokenSource { Result.success("token-one") }).register(userId)
         registrar(second, PushTokenSource { Result.success("token-two") }).register(userId)
 
-        assertFalse(
-            first.names.single() == second.names.single(),
-            "a rotated token must not overwrite the old one",
+        assertEquals(
+            first.names.single(),
+            second.names.single(),
+            "a rotated token must overwrite the existing device record",
         )
     }
 
@@ -142,6 +146,7 @@ class PushRegistrarTest {
         val push = FirebasePushRegistrar(
             firestore = firestore(fake, HttpStatusCode(403, "PERMISSION_DENIED")),
             transport = PushTokenSource { Result.success(token) },
+            deviceIdentity = DeviceIdentity { Result.success(deviceId) },
             logger = RecordingLogger(),
         )
 
@@ -163,6 +168,7 @@ class PushRegistrarTest {
         FirebasePushRegistrar(
             firestore = firestore(fake),
             transport = PushTokenSource { Result.success(token) },
+            deviceIdentity = DeviceIdentity { Result.success(deviceId) },
             logger = logger,
         ).register(userId).getOrThrow()
 
@@ -180,6 +186,7 @@ class PushRegistrarTest {
         FirebasePushRegistrar(
             firestore = firestore(Fake()),
             transport = PushTokenSource { Result.failure(IllegalStateException(noise)) },
+            deviceIdentity = DeviceIdentity { Result.success(deviceId) },
             logger = logger,
         ).register(userId)
 
@@ -190,11 +197,11 @@ class PushRegistrarTest {
     }
 
     @Test
-    fun `the hash is stable for a token and never leaks it`() {
-        assertEquals(hashPushToken(token), hashPushToken(token))
-        assertEquals(16, hashPushToken(token).length)
-        assertFalse(token in hashPushToken(token))
-        assertFalse(hashPushToken("a") == hashPushToken("b"))
+    fun `the device hash is stable and never leaks the raw identity`() {
+        assertEquals(hashDeviceIdentity(deviceId), hashDeviceIdentity(deviceId))
+        assertEquals(16, hashDeviceIdentity(deviceId).length)
+        assertFalse(deviceId in hashDeviceIdentity(deviceId))
+        assertFalse(hashDeviceIdentity("a") == hashDeviceIdentity("b"))
     }
 }
 

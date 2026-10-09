@@ -21,6 +21,7 @@ import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +39,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -99,6 +100,9 @@ fun DiaryListScreen(
 
     Scaffold(
         modifier = modifier,
+        // The app shell already owns the system and bottom-navigation insets. Applying them a
+        // second time here made the end of the diary list sit above a large empty band.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         // Transparent so the shell's page background is the page background, rather than a
         // flat fill sitting on top of it and cutting off the chrome's own surface.
         containerColor = Color.Transparent,
@@ -127,7 +131,7 @@ fun DiaryListScreen(
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        AnimatedIcon(Icons.Default.Add, contentDescription = null)
                     }
                 },
                 text = {

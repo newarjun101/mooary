@@ -27,7 +27,7 @@ import com.arjun.soul_note.resources.auth_welcome_back
 import com.arjun.soul_note.resources.common_dismiss
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -133,7 +133,7 @@ fun AuthScreen(
             } else {
                 null
             },
-            leadingIcon = { Icon(Icons.Default.MailOutline, contentDescription = null) },
+            leadingIcon = { AnimatedIcon(Icons.Default.MailOutline, contentDescription = null) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next,
@@ -155,7 +155,7 @@ fun AuthScreen(
             } else {
                 null
             },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            leadingIcon = { AnimatedIcon(Icons.Default.Lock, contentDescription = null) },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = if (state.isRegister) ImeAction.Next else ImeAction.Done,

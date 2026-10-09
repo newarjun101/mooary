@@ -100,6 +100,13 @@ class FirebaseAuthClient(
             ),
         )
 
+    /** Creates the restricted first-launch identity used only to register this device for push. */
+    suspend fun signInAnonymously(): AuthSession =
+        request(
+            url = "$identity/accounts:signUp$keyQuery",
+            payload = mapOf("returnSecureToken" to JsonPrimitive(true)),
+        )
+
     /** Exchanges credentials for a fresh id token, used by "change password". */
     suspend fun signInForReauth(email: String, password: String): AuthSession =
         signInWithPassword(email, password)

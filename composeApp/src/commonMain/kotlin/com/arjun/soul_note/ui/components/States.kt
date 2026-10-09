@@ -25,7 +25,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
+import com.arjun.soul_note.ui.components.AnimatedIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -125,7 +125,7 @@ fun MessageState(
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
+                AnimatedIcon(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
@@ -146,7 +146,7 @@ fun MessageState(
             )
             if (actionLabel != null && onAction != null) {
                 TextButton(onClick = onAction, contentPadding = PaddingValues(horizontal = Spacing.medium)) {
-                    Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
+                    AnimatedIcon(imageVector = Icons.Default.Refresh, contentDescription = null)
                     Text(
                         text = actionLabel,
                         modifier = Modifier.padding(start = Spacing.small),

@@ -69,6 +69,7 @@ val viewModelModule: Module = module {
             observeFilteredEntries = get(),
             calculateDashboard = get(),
             calculateOverview = get(),
+            toggleFavorite = get(),
             userId = userId,
             today = today,
             greetingName = greetingName,

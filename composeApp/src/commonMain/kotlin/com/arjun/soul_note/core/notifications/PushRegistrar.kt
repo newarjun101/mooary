@@ -70,21 +70,28 @@ class UnsupportedPushRegistrar(
 class FirebasePushRegistrar(
     private val firestore: FirestoreClient,
     private val transport: PushTokenSource,
+    private val deviceIdentity: DeviceIdentity,
     @Suppress("unused") private val logger: AppLogger,
 ) : PushRegistrar {
 
     override val isSupported: Boolean = true
 
     override suspend fun register(userId: String): Result<Unit> {
+        logger.info(TAG) { "push registration started" }
+        val deviceId = deviceIdentity.value().getOrElse { error ->
+            logger.warn(TAG) { "no stable device identity available: ${error::class.simpleName}" }
+            return Result.failure(error)
+        }
         val token = transport.currentToken().getOrElse { error ->
             // Only the exception's type, never its text: the SDK's own message can quote the
             // token it failed to return.
             logger.warn(TAG) { "no push token available: ${error::class.simpleName}" }
             return Result.failure(error)
         }
+        logger.info(TAG) { "push token obtained; committing device registration" }
 
         val write = FirestoreWrite.Set(
-            path = FirestorePaths.device(userId, hashPushToken(token)),
+            path = FirestorePaths.device(userId, hashDeviceIdentity(deviceId)),
             fields = mapOf(
                 "token" to FirestoreCodec.string(token),
                 "updatedAt" to FirestoreCodec.timestamp(
@@ -131,5 +138,14 @@ expect fun createPushTokenSource(): PushTokenSource?
      */
     fun createPushRegistrar(firestore: FirestoreClient?, logger: AppLogger): PushRegistrar =
         createPushTokenSource()
-            ?.let { transport -> firestore?.let { FirebasePushRegistrar(it, transport, logger) } }
+            ?.let { transport ->
+                firestore?.let {
+                    FirebasePushRegistrar(
+                        firestore = it,
+                        transport = transport,
+                        deviceIdentity = createDeviceIdentity(logger),
+                        logger = logger,
+                    )
+                }
+            }
             ?: UnsupportedPushRegistrar(logger)

@@ -60,6 +60,8 @@ import platform.Security.kSecValueData
  */
 class KeychainTokenStore(
     private val logger: AppLogger,
+    private val service: String = SERVICE,
+    private val account: String = ACCOUNT,
 ) : SecureTokenStore {
 
     @OptIn(ExperimentalForeignApi::class)
@@ -153,8 +155,8 @@ class KeychainTokenStore(
     @OptIn(ExperimentalForeignApi::class)
     private fun identityQuery(): CPointer<cnames.structs.__CFDictionary> = keychainQuery { dictionary ->
         CFDictionaryAddValue(dictionary, kSecClass.key(), kSecClassGenericPassword.key())
-        dictionary.setStringAttribute(kSecAttrService.key(), SERVICE)
-        dictionary.setStringAttribute(kSecAttrAccount.key(), ACCOUNT)
+        dictionary.setStringAttribute(kSecAttrService.key(), service)
+        dictionary.setStringAttribute(kSecAttrAccount.key(), account)
     }
 
     /**

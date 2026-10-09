@@ -73,11 +73,20 @@ class DefaultAuthRepository(
     override fun observeAuthState(): Flow<User?> = flowOfUser()
 
     override suspend fun restoreSession(): User? {
-        val restored = remote.restoreSession().getOrNull()
-        _user.value = restored?.toUser()
+        val restoredResult = remote.restoreSession()
+        val restored = restoredResult.getOrNull()
+        if (restored == null && restoredResult.isFailure) {
+            logger.warn(TAG) {
+                "first-launch Firebase session unavailable: ${restoredResult.exceptionOrNull()?.let { it::class.simpleName }}"
+            }
+        }
+        val restoredUser = restored?.toUser()
+        // An anonymous Firebase identity authorizes the device-registration write but is not a
+        // user-visible account. Keep the app in guest mode until a real email account signs in.
+        _user.value = restoredUser?.takeIf { it.email.isNotBlank() }
         // A returning user is exactly the case that needs this: they signed in once, perhaps
         // before Cloud Messaging was switched on, and will not type a password again for days.
-        _user.value?.let { registerForPush(it) }
+        restoredUser?.let { registerForPush(it) }
         return _user.value
     }
 

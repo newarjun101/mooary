@@ -60,8 +60,8 @@ class FcmMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         // The token just rotated. Re-registering needs a signed-in user, and a service has no
         // business reaching into the session, so this is left to the next sign-in rather than
-        // fired from here. The stale document is keyed by the old token's hash, so it lingers
-        // until a sender prunes on `updatedAt`.
+        // fired from here. The next signed-in launch reuses the stable device document and
+        // replaces its token, so token rotation cannot grow the device collection.
         //
         // The token is not logged and not passed on. It is a credential.
         Log.i(TAG, "push token rotated")

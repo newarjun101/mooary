@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.firebaseCrashlytics)
     // MainActivity hosts the shared Compose UI, so this module needs the Compose compiler
     // too. Without it the composable lambda passed to setContent is compiled as a plain
     // Function0 while the signature activity-compose exposes at runtime is a Composer-based
@@ -390,6 +391,11 @@ dependencies {
     // transitively because that declaration is `implementation`, so it is repeated rather than
     // promoted to `api` for the sake of one class.
     implementation(libs.firebase.messaging)
+    // Analytics supplies privacy-safe product events and Crashlytics captures fatal and
+    // non-fatal Android failures. The BoM keeps those SDKs compatible with one another.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
