@@ -1,5 +1,6 @@
 package com.arjun.soul_note.data.repository
 
+import com.arjun.soul_note.core.error.AppException
 import com.arjun.soul_note.core.error.suspendRunCatchingApp
 import com.arjun.soul_note.core.logging.AppLogger
 import com.arjun.soul_note.core.notifications.PushRegistrar
@@ -123,8 +124,10 @@ class DefaultAuthRepository(
             registrar.register(user.id).onFailure { error ->
                 // Logged by the registrar itself; this line records only that it was attempted,
                 // because a silent failure here is indistinguishable from a feature that does
-                // not exist.
-                logger.info(TAG) { "push registration not completed: ${error::class.simpleName}" }
+                // not exist. The AppError, when there is one, is enum-derived and safe to
+                // print where a raw exception message would not be.
+                val detail = (error as? AppException)?.error ?: error::class.simpleName
+                logger.info(TAG) { "push registration not completed: $detail" }
             }
         }
     }

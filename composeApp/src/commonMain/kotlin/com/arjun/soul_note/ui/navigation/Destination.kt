@@ -1,12 +1,5 @@
 package com.arjun.soul_note.ui.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.InsertEmoticon
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.arjun.soul_note.resources.Res
 import com.arjun.soul_note.resources.nav_calendar
 import com.arjun.soul_note.resources.nav_diary
@@ -14,6 +7,12 @@ import com.arjun.soul_note.resources.nav_dashboard
 import com.arjun.soul_note.resources.nav_mood
 import com.arjun.soul_note.resources.nav_profile
 import com.arjun.soul_note.resources.nav_settings
+import com.arjun.soul_note.resources.tab_calendar
+import com.arjun.soul_note.resources.tab_diary
+import com.arjun.soul_note.resources.tab_home
+import com.arjun.soul_note.resources.tab_mood
+import com.arjun.soul_note.resources.tab_settings
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -95,19 +94,25 @@ sealed interface Destination {
  *
  * [labelRes] rather than a string: this enum is not a composable, so it cannot call
  * `stringResource`, and it hands the resource to the two places that can.
+ *
+ * [iconRes] rather than an [androidx.compose.ui.graphics.vector.ImageVector]: the tab artwork
+ * is bitmap, drawn in the app's own palette, so a Material vector would be the one icon on the
+ * bar that did not match. The same reason [labelRes] exists applies here — this is not a
+ * composable, so it cannot call `painterResource`, and it hands the resource to the one place
+ * that can.
  */
 enum class TopLevelDestination(
     val destination: Destination,
     val labelRes: StringResource,
-    val icon: ImageVector,
+    val iconRes: DrawableResource,
 ) {
-    DASHBOARD(Destination.Dashboard, Res.string.nav_dashboard, Icons.Default.Home),
-    DIARY(Destination.Diary, Res.string.nav_diary, Icons.Default.EditNote),
-    MOOD(Destination.Mood, Res.string.nav_mood, Icons.Default.InsertEmoticon),
-    CALENDAR(Destination.Calendar, Res.string.nav_calendar, Icons.Default.CalendarMonth),
+    DASHBOARD(Destination.Dashboard, Res.string.nav_dashboard, Res.drawable.tab_home),
+    DIARY(Destination.Diary, Res.string.nav_diary, Res.drawable.tab_diary),
+    MOOD(Destination.Mood, Res.string.nav_mood, Res.drawable.tab_mood),
+    CALENDAR(Destination.Calendar, Res.string.nav_calendar, Res.drawable.tab_calendar),
     // The overview contains app preferences (theme, reminders, sync and export), so it is
     // labelled Settings. Its account editor is opened as the Profile page.
-    PROFILE(Destination.Profile, Res.string.nav_settings, Icons.Default.Settings),
+    PROFILE(Destination.Profile, Res.string.nav_settings, Res.drawable.tab_settings),
     ;
 
     companion object {

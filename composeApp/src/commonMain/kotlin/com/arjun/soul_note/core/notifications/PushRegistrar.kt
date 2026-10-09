@@ -1,6 +1,7 @@
 package com.arjun.soul_note.core.notifications
 
 import com.arjun.soul_note.core.datetime.Iso8601
+import com.arjun.soul_note.core.error.AppException
 import com.arjun.soul_note.core.logging.AppLogger
 import com.arjun.soul_note.data.remote.firebase.FirestoreCodec
 import com.arjun.soul_note.data.remote.firebase.FirestoreClient
@@ -106,7 +107,11 @@ class FirebasePushRegistrar(
                     Result.success(Unit)
                 },
                 onFailure = { error ->
-                    logger.error(TAG) { "could not register this device for push" }
+                    // Only types: a transport error can quote the token it failed with, so no
+                    // message is printed. An AppException carries an [AppError], which is an
+                    // enum-derived value and therefore safe where a raw message is not.
+                    val detail = (error as? AppException)?.error ?: error::class.simpleName
+                    logger.error(TAG) { "could not register this device for push: $detail" }
                     Result.failure(error)
                 },
             )

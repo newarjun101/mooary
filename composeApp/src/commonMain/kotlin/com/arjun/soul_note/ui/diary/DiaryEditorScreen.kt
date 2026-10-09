@@ -148,6 +148,7 @@ fun DiaryEditorScreen(
             DateSelector(
                 label = stringResource(Res.string.editor_date_field),
                 date = state.entryDate,
+                today = today,
                 onDateSelected = viewModel::onDateChanged,
             )
             Text(

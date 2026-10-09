@@ -138,7 +138,7 @@ class TimeRangeTest {
 
     @Test
     fun `every range reports one bucket per chart mark and never a zero`() {
-        TimeRange.entries.forEach { range ->
+        TimeRange.presets.forEach { range ->
             assertTrue(range.bucketCount > 0, "$range")
             assertEquals(range.bucketCount, range.bucketStarts(today).size, "$range")
         }

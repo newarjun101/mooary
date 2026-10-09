@@ -158,6 +158,7 @@ fun MoodScreen(
                     DateSelector(
                         label = stringResource(Res.string.mood_date_field),
                         date = state.date,
+                        today = today,
                         onDateSelected = viewModel::onDateChanged,
                     )
                     OutlinedTextField(

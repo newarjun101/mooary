@@ -305,6 +305,27 @@ class FirestoreClient(
     private suspend fun ensureSuccess(response: HttpResponse, url: String) {
         if (response.status.isSuccess()) return
         val body = runCatching { response.bodyAsText() }.getOrDefault("")
+        // Logged for *every* non-2xx, not only the 400-range one. The 400 branch used to be
+        // the only one that spoke, so a 401 or 403 -- the two statuses a refused write
+        // actually comes back as -- surfaced as a bare AppException with nothing attached,
+        // and a dead feature was indistinguishable from one that had never been wired up.
+        // Both parts are scrubbed on the way out: the url to a collection path, and the
+        // reason to its vocabulary with every quoted value masked, because a fieldViolation
+        // quotes the value it rejected and those values are diary entries.
+        logger.warn("FirestoreClient") {
+            val root = runCatching { json.parseToJsonElement(body) as? JsonObject }.getOrNull()
+            val err = root?.get("error") as? JsonObject
+            val reasons = buildList {
+                err?.get("message")?.let { add(it.redacted()) }
+                err?.get("details").asArray().forEach { detail ->
+                    (detail as? JsonObject)?.get("fieldViolations").asArray().forEach { v ->
+                        (v as? JsonObject)?.get("description")?.let { add(it.redacted()) }
+                    }
+                }
+            }
+            val endpoint = endpointOf(url)
+            "rejected ${response.status.value} on $endpoint :: ${reasons.joinToString(" / ")}"
+        }
         throw AppException(
             when (response.status) {
                 HttpStatusCode.Unauthorized ->
@@ -314,30 +335,11 @@ class FirestoreClient(
                 HttpStatusCode.Conflict -> AppError.Conflict(ErrorKeys.WRITE_CONFLICT)
                 HttpStatusCode.TooManyRequests ->
                     AppError.Authentication(AuthenticationReason.TOO_MANY_REQUESTS)
-                in HttpStatusCode.BadRequest..HttpStatusCode.InternalServerError -> {
-                    val field = REGEX_FIELD.find(body)?.groupValues?.getOrNull(1)
-                    // Firestore's reason is the only thing that says *which* field it
-                    // refused, and a 400 here has no other diagnostic. Both parts are
-                    // scrubbed on the way out: the url to a collection path, and the
-                    // reason to its vocabulary with every quoted value masked, because
-                    // a fieldViolation quotes the value it rejected and those are
-                    // diary entries.
-                    logger.warn("FirestoreClient") {
-                        val root = runCatching { json.parseToJsonElement(body) as? JsonObject }.getOrNull()
-                        val err = root?.get("error") as? JsonObject
-                        val reasons = buildList {
-                            err?.get("message")?.let { add(it.redacted()) }
-                            err?.get("details").asArray().forEach { detail ->
-                                (detail as? JsonObject)?.get("fieldViolations").asArray().forEach { v ->
-                                    (v as? JsonObject)?.get("description")?.let { add(it.redacted()) }
-                                }
-                            }
-                        }
-                        val endpoint = endpointOf(url)
-                        "rejected ${response.status.value} on $endpoint :: ${reasons.joinToString(" / ")}"
-                    }
-                    AppError.Validation(field, ErrorKeys.VALIDATION_REQUIRED)
-                }
+                in HttpStatusCode.BadRequest..HttpStatusCode.InternalServerError ->
+                    AppError.Validation(
+                        REGEX_FIELD.find(body)?.groupValues?.getOrNull(1),
+                        ErrorKeys.VALIDATION_REQUIRED,
+                    )
                 else -> AppError.Unexpected(ErrorKeys.UNEXPECTED)
             },
         )
@@ -346,7 +348,7 @@ class FirestoreClient(
     private suspend fun post(url: String, payload: JsonObject): HttpResponse = try {
         val response = http.post(url) {
             contentType(ContentType.Application.Json)
-            tokenProvider()?.let { token -> bearer(token) }
+            credential()
             setBody(payload.toString())
         }
         ensureSuccess(response, url)
@@ -361,7 +363,7 @@ class FirestoreClient(
 
     private suspend fun get(url: String): HttpResponse = try {
         val response = http.get(url) {
-            tokenProvider()?.let { token -> bearer(token) }
+            credential()
         }
         if (response.status == HttpStatusCode.NotFound) return response
         ensureSuccess(response, url)
@@ -393,11 +395,34 @@ class FirestoreClient(
 
 
     /** The collection path with the account id replaced, so a failure names the endpoint. */
+    /**
+     * The identifying part of a URL for a log line.
+     *
+     * `:commit` addresses no document — the paths are in the body — and without the special
+     * case below [substringAfter] misses and the host name is the longest unbroken segment in
+     * the string, so it would be reported as `<uid>`: a "collection path" that is really the
+     * domain, which reads as a masked identity and is worse than saying nothing.
+     */
     private fun endpointOf(url: String): String =
-        url.substringAfter("documents/").substringBefore('?').replace(Regex("/[^/]{20,}"), "/<uid>")
+        if (url.contains(":commit")) "commit"
+        else url.substringAfter("documents/").substringBefore('?').replace(Regex("/[^/]{20,}"), "/<uid>")
 
     private fun io.ktor.client.request.HttpRequestBuilder.bearer(token: String) {
         header(HttpHeaders.Authorization, "Bearer $token")
+    }
+
+    /**
+     * Attaches the caller's id token, or reports that there was not one.
+     *
+     * A request with no credential is refused by every rule in the file with the same
+     * "Missing or insufficient permissions" a rule-level denial produces, so without this
+     * line the two are the same single line in logcat. The presence of a token is logged;
+     * the token itself never is.
+     */
+    private suspend fun io.ktor.client.request.HttpRequestBuilder.credential() {
+        val token = tokenProvider()
+        if (token == null) logger.warn("FirestoreClient") { "sending a request with no id token" }
+        token?.let { bearer(it) }
     }
 
     private companion object {

@@ -87,7 +87,7 @@ class PushRegistrarTest {
         val fake = Fake()
         registrar(fake).register(userId).getOrThrow()
 
-        val expected = "users/$userId/devices/${hashDeviceIdentity(deviceId)}"
+        val expected = "register-device/$userId/devices/${hashDeviceIdentity(deviceId)}"
         assertEquals(1, fake.urls.size)
         assertTrue(
             fake.names.single().endsWith(expected),

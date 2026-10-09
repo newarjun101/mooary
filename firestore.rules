@@ -3,10 +3,17 @@ rules_version = '2';
 // Firestore security rules for the Diary & Mood Tracker.
 //
 // Document layout (see FirestorePaths):
-//   users/{uid}                      profile
-//   users/{uid}/diaryEntries/{id}    diary entries
-//   users/{uid}/moods/{id}           mood check-ins
-//   users/{uid}/devices/{tokenHash}  push registration, only when the build has FCM
+//   users/{uid}                        profile
+//   users/{uid}/diaryEntries/{id}      diary entries
+//   users/{uid}/moods/{id}             mood check-ins
+//   register-device/{uid}/devices/{h}  push registration, only when the build has FCM
+//
+// Push registrations sit in their own top-level collection rather than under `users`, but the
+// uid is still a path segment, so `isOwner(uid)` below reads exactly as it does for the rest
+// of the database. That is the whole reason the path is `register-device/{uid}/devices/{h}`
+// and not `register-device/{h}`: with no parent document to derive ownership from, the only
+// place left to put the owner is a field the client writes, and a rule that trusts a field it
+// did not choose is not a rule.
 //
 // The database is reachable only through the Firebase REST API with the caller's own
 // ID token, so every rule below re-derives the owner from `request.auth.uid`.
@@ -147,18 +154,22 @@ service cloud.firestore {
         allow create, update: if isOwner(uid) && moodEntryIsValid();
         allow delete: if isOwner(uid);
       }
+    }
 
-      // Push registrations. This path was added after the other three and initially had no
-      // arm, so it fell through to the deny-all catch-all below: every registration was
-      // refused, and nothing said so, because registration is fired and forgotten by
-      // design. The document is a credential, so the owner-only test is the whole rule --
-      // a readable token is a token somebody else can address, and a writable one lets a
-      // caller redirect another user's pushes to their own device.
-      match /devices/{tokenHash} {
-        allow read: if isOwner(uid);
-        allow create, update: if isOwner(uid) && deviceIsValid();
-        allow delete: if isOwner(uid);
-      }
+    // Push registrations, in their own top-level collection. Added after the `users` arms
+    // and initially had no arm at all, so it fell through to the deny-all catch-all below:
+    // every registration was refused, and nothing said so, because registration is fired and
+    // forgotten by design. The document is a credential, so the owner-only test is the whole
+    // rule -- a readable token is a token somebody else can address, and a writable one lets
+    // a caller redirect another user's pushes to their own device.
+    //
+    // The uid lives in the path for the same reason it does under `users`: it is compared
+    // against `request.auth.uid`, so the client may pick the path only from the ones it
+    // already owns.
+    match /register-device/{uid}/devices/{tokenHash} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && deviceIsValid();
+      allow delete: if isOwner(uid);
     }
 
     // Anything not matched above is denied: there is no other writable path in this

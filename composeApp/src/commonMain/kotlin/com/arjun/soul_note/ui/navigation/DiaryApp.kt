@@ -61,11 +61,6 @@ import com.arjun.soul_note.resources.nav_back
 import com.arjun.soul_note.resources.nav_entry
 import com.arjun.soul_note.resources.nav_profile
 import com.arjun.soul_note.resources.nav_settings
-import com.arjun.soul_note.resources.tab_calendar
-import com.arjun.soul_note.resources.tab_diary
-import com.arjun.soul_note.resources.tab_home
-import com.arjun.soul_note.resources.tab_mood
-import com.arjun.soul_note.resources.tab_settings
 import com.arjun.soul_note.resources.diary_search
 import com.arjun.soul_note.ui.adaptive.ProvideWindowWidthClass
 import com.arjun.soul_note.ui.theme.PaperSurface
@@ -243,13 +238,6 @@ private fun CompactNavigationBar(
 
 @Composable
 private fun TabIcon(item: TopLevelDestination, selected: Boolean) {
-    val asset = when (item) {
-        TopLevelDestination.DASHBOARD -> Res.drawable.tab_home
-        TopLevelDestination.DIARY -> Res.drawable.tab_diary
-        TopLevelDestination.CALENDAR -> Res.drawable.tab_calendar
-        TopLevelDestination.PROFILE -> Res.drawable.tab_settings
-        TopLevelDestination.MOOD -> Res.drawable.tab_mood
-    }
     val motion = rememberInfiniteTransition(label = "tab-icon-${item.name}")
     val lift by motion.animateFloat(
         initialValue = -0.7f,
@@ -265,7 +253,7 @@ private fun TabIcon(item: TopLevelDestination, selected: Boolean) {
         label = "tab-icon-lift",
     )
     Image(
-        painter = painterResource(asset),
+        painter = painterResource(item.iconRes),
         contentDescription = stringResource(item.labelRes),
         modifier = Modifier
             .size(26.dp)

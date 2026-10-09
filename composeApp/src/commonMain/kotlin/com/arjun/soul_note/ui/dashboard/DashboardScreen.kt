@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -34,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arjun.soul_note.domain.model.DashboardStatistics
@@ -74,6 +74,7 @@ import com.arjun.soul_note.resources.dashboard_streak
 import com.arjun.soul_note.resources.dashboard_streak_days
 import com.arjun.soul_note.resources.diary_new_entry
 import com.arjun.soul_note.resources.state_loading_diary
+import com.arjun.soul_note.resources.tab_calendar
 import com.arjun.soul_note.ui.base.SessionState
 import com.arjun.soul_note.ui.base.rememberViewModel
 import com.arjun.soul_note.ui.components.DiaryEntryCard
@@ -377,8 +378,9 @@ private fun RangePicker(
             onClick = { expanded = true },
             modifier = Modifier.fillMaxWidth().padding(Spacing.xSmall),
         ) {
-            AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary)
+            // The tab asset, not a Material vector: this is the calendar the app draws
+            // everywhere else, and it is multi-coloured, so it carries no tint.
+            AnimatedIcon(painterResource(Res.drawable.tab_calendar), contentDescription = null)
             Spacer(Modifier.width(Spacing.small))
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(selected.shortLabel()), style = MaterialTheme.typography.labelLarge)
@@ -401,13 +403,13 @@ private fun RangePicker(
                             )
                         }
                     },
-                    leadingIcon = { AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null) },
+                    leadingIcon = { AnimatedIcon(painterResource(Res.drawable.tab_calendar), contentDescription = null) },
                     onClick = { expanded = false; onSelect(range) },
                 )
             }
             DropdownMenuItem(
                 text = { Text(stringResource(Res.string.dashboard_range_custom)) },
-                leadingIcon = { AnimatedIcon(Icons.Default.CalendarMonth, contentDescription = null) },
+                leadingIcon = { AnimatedIcon(painterResource(Res.drawable.tab_calendar), contentDescription = null) },
                 onClick = { expanded = false; showCustomFields = true },
             )
         }
@@ -418,6 +420,7 @@ private fun RangePicker(
                 DateSelector(
                     label = stringResource(Res.string.dashboard_range_start),
                     date = customStart,
+                    today = today,
                     onDateSelected = { start ->
                         customStart = start
                         if (customEnd < start) customEnd = start
@@ -429,6 +432,7 @@ private fun RangePicker(
                 DateSelector(
                     label = stringResource(Res.string.dashboard_range_end),
                     date = customEnd,
+                    today = today,
                     onDateSelected = { end ->
                         customEnd = if (end < customStart) customStart else end
                         onSelect(TimeRange.Custom(customStart, customEnd))

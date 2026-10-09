@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.firebaseCrashlytics)
     // MainActivity hosts the shared Compose UI, so this module needs the Compose compiler
     // too. Without it the composable lambda passed to setContent is compiled as a plain
     // Function0 while the signature activity-compose exposes at runtime is a Composer-based
@@ -391,11 +390,21 @@ dependencies {
     // transitively because that declaration is `implementation`, so it is repeated rather than
     // promoted to `api` for the sake of one class.
     implementation(libs.firebase.messaging)
-    // Analytics supplies privacy-safe product events and Crashlytics captures fatal and
-    // non-fatal Android failures. The BoM keeps those SDKs compatible with one another.
+    // Crashlytics is deliberately not a dependency here, and cannot be added as-is.
+    //
+    // The Gradle plugin it needs fetches its app id out of the google-services plugin's
+    // `process<Variant>GoogleServices` task and throws "Google-Services plugin not found" while
+    // creating `uploadCrashlyticsMappingFileRelease`, which breaks `:androidApp:assembleRelease`
+    // at task-graph time. This app replaces google-services with `generateFirebaseConfig` (see
+    // above), so applying that plugin is not an option either: it would look for
+    // `google-services.json` inside `androidApp/` and regenerate resources this build already
+    // generates. And the SDK without the plugin is worse than missing — it throws
+    // "The Crashlytics build ID is missing" from `FirebaseInitProvider`, so the app dies before
+    // its first frame, which no build failure reports. All three configurations were tried.
+    // Analytics has no such coupling: it reads `google_app_id` from the resource
+    // generateFirebaseConfig writes.
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

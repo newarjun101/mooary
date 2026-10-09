@@ -119,13 +119,16 @@ object UserFields {
     const val UPDATED_AT = "updatedAt"
 }
 
-/** Firestore collection paths, relative to the authenticated user. */
+/** Firestore collection paths. */
 object FirestorePaths {
     const val USERS = "users"
     const val DIARY_ENTRIES = "diaryEntries"
     const val MOODS = "moods"
     const val DRAFTS = "drafts"
     const val DEVICES = "devices"
+
+    /** Top-level home of push registrations, kept out of `users` but still owner-scoped. */
+    const val REGISTER_DEVICE = "register-device"
 
     fun user(userId: String) = "$USERS/$userId"
     fun diaryEntries(userId: String) = "$USERS/$userId/$DIARY_ENTRIES"
@@ -134,7 +137,14 @@ object FirestorePaths {
     fun mood(userId: String, moodId: String) = "$USERS/$userId/$MOODS/$moodId"
 
     /**
-     * One document per registered push target, under the owning user.
+     * One document per registered push target, in a top-level collection rather than under
+     * the owning user.
+     *
+     * The uid stays a path segment, so the security rule can still compare it with
+     * `request.auth.uid` instead of a field the client writes. The path is deliberately four
+     * segments: `register-device/{uid}/{hash}` would end on a collection, which Firestore
+     * refuses as a document path, and collapsing the owner into the document id would leave
+     * the rule nothing it can trust.
      *
      * Keyed by a hash of the token rather than the token itself. A registration token is a
      * credential — it authorises nothing on its own, but it does let whoever holds it address
@@ -142,5 +152,6 @@ object FirestorePaths {
      * in a document id would also make it appear in every log line and error message that
      * mentions a path, which is the opposite of what the privacy rules want.
      */
-    fun device(userId: String, deviceKeyHash: String) = "$USERS/$userId/$DEVICES/$deviceKeyHash"
+    fun device(userId: String, deviceKeyHash: String) =
+        "$REGISTER_DEVICE/$userId/$DEVICES/$deviceKeyHash"
 }

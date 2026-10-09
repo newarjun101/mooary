@@ -262,7 +262,7 @@ into `commonMain`, and checked before the SDK is touched. A runtime probe is the
 here: the decision is a property of the build, not of the device.
 
 **A new Firestore collection with no `match` arm is refused, and nothing says so.** The
-`devices` subcollection that push registration writes to was added with no arm in
+`register-device` collection that push registration writes to was added with no arm in
 `firestore.rules`, so it fell through to the deny-all catch-all at the bottom of the file. That
 is the correct default -- a rule that quietly allows unknown collections is how a diary app
 becomes world-readable -- but it interacts badly with registration being fired and forgotten by
@@ -488,8 +488,12 @@ proves nothing about the default build users actually get.
 **A registration token is a credential, and this is where that rule gets tested.** It is never
 logged, never in a document id, and never in an error message: the SDK's own failure text quotes
 the token it failed to return, so only `error::class.simpleName` is ever logged. The Firestore
-document is `users/{uid}/devices/{hash}` — the hash exists purely so the document *name* is safe,
-because a `:commit` body is the one part of a write that ends up in logs and rules traces.
+document is `register-device/{uid}/devices/{hash}` — the hash exists purely so the document *name*
+is safe, because a `:commit` body is the one part of a write that ends up in logs and rules
+traces. The collection is top-level rather than under `users`, but the uid is still a path
+segment, so `isOwner(uid)` in `firestore.rules` compares it with `request.auth.uid` exactly as
+it does for the rest of the database; folding the uid into the document id instead would leave
+the rule only a client-chosen field to trust.
 `PushRegistrarTest` asserts the token is absent from `writes[].update.name` and present in the
 body. Note the path is in the body, not the URL: `:commit` takes the whole batch at once.
 
