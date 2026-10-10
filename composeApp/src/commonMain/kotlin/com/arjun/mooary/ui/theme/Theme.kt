@@ -1,6 +1,5 @@
 package com.arjun.mooary.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +66,7 @@ object Elevation {
 
 @Composable
 fun DiaryTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val scheme = if (darkTheme) DarkColorScheme else LightColorScheme

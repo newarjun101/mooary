@@ -4,13 +4,13 @@ import com.arjun.mooary.domain.model.DiaryDraft
 import kotlinx.coroutines.flow.Flow
 
 /** User preferences persisted on-device so the app opens in the chosen state offline. */
-enum class ThemeMode { SYSTEM, LIGHT, DARK }
+enum class ThemeMode { LIGHT, DARK }
 
 enum class AppLanguage { ENGLISH, BURMESE }
 
 /** Non-content preferences. Deliberately contains no journal data. */
 data class AppSettings(
-    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
     val language: AppLanguage = AppLanguage.ENGLISH,
     val remindersEnabled: Boolean = false,
     val dailyDiaryReminderHour: Int = 21,

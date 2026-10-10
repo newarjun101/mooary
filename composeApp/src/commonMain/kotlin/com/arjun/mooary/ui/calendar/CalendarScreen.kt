@@ -137,7 +137,6 @@ private fun CalendarContent(
     val tableHeight = when (visibleDayCount) {
         7 -> 150.dp
         15 -> 255.dp
-        24 -> 360.dp
         else -> (maxHeight * 0.52f).coerceAtLeast(300.dp)
     }
     val pageBackward = {
@@ -201,7 +200,7 @@ private fun CalendarContent(
                                 .background(scheme.primary, DiaryShapes.extraSmall),
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xSmall)) {
-                            listOf(7, 15, 24, 0).forEach { count ->
+                            listOf(7, 15, 0).forEach { count ->
                                 TextButton(onClick = { visibleDayCount = count }) {
                                     Text(if (count == 0) "Month" else "$count d")
                                 }

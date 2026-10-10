@@ -1,6 +1,5 @@
 package com.arjun.mooary.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,7 +38,6 @@ fun App() {
 
     val session by sessionHolder.state.collectAsState()
     val settings by settingsRepository.settings.collectAsState(initial = null)
-    val systemIsDark = isSystemInDarkTheme()
 
     // Demo content for design review, so the UI can be judged against a populated journal
     // rather than only empty states. Debug builds only, and the use case itself refuses to
@@ -56,16 +54,9 @@ fun App() {
 
     RequestNotificationPermissionOnAppEntry()
 
-    // Until the stored settings arrive the chosen theme is not "the system theme", it is
-    // unknown, and those are different things. Resolving it to the system paints a frame of
-    // the wrong palette before the first real one: a DARK preference on a light system puts
-    // light-theme ink on paper for the length of the settings read, which reads as an app
-    // that ignored dark mode. Measured, that window is a blank page plus a single transition
-    // frame, so the content gate below is worth the blank page -- it removes the text frame.
     val darkTheme = when (settings?.themeMode) {
-        ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
-        ThemeMode.SYSTEM, null -> systemIsDark
+        ThemeMode.LIGHT, null -> false
     }
 
     // Language preference stored in settings; applied at system level on Android if needed later.

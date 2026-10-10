@@ -26,7 +26,7 @@ class DefaultSettingsRepository(
 
     override val settings: Flow<AppSettings> = combine(
         local.observeSetting(KEY_THEME).map { stored ->
-            ThemeMode.entries.firstOrNull { it.name == stored } ?: ThemeMode.SYSTEM
+            ThemeMode.entries.firstOrNull { it.name == stored } ?: ThemeMode.LIGHT
         },
         local.observeSetting(KEY_LANGUAGE).map { stored ->
             try {

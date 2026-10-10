@@ -185,7 +185,6 @@
     <string name="profile_last_synced">Last synced</string>
     <string name="profile_never_synced">Never</string>
     <string name="profile_appearance_section">Appearance</string>
-    <string name="profile_theme_system">Follow system</string>
     <string name="profile_theme_light">Light</string>
     <string name="profile_theme_dark">Dark</string>
     <string name="profile_daily_reminders">Daily reminders</string>

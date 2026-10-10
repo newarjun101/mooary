@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 /** Local preferences, reminders, and exports. */
 data class ProfileState(
-    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
     val language: AppLanguage = AppLanguage.ENGLISH,
     val remindersEnabled: Boolean = false,
     val isExporting: Boolean = false,

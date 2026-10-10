@@ -189,7 +189,6 @@
     <string name="profile_last_synced">နောက်ဆုံး စင့်ခ်</string>
     <string name="profile_never_synced">မရှိသေး</string>
     <string name="profile_appearance_section">အပြင်အဆင်</string>
-    <string name="profile_theme_system">စနစ်အတိုင်း</string>
     <string name="profile_theme_light">အလင်း</string>
     <string name="profile_theme_dark">အမှောင်</string>
     <string name="profile_daily_reminders">နေ့စဉ် အော်ဖြော်ချက်များ</string>
