@@ -1,9 +1,7 @@
 import SwiftUI
 import UIKit
 import ComposeApp
-import FirebaseAnalytics
-import FirebaseCore
-import FirebaseCrashlytics
+import UserNotifications
 
 /// The page colour, mirroring `Paper` and `Espresso` in `ui/theme/Color.kt`.
 ///
@@ -32,6 +30,14 @@ struct ComposeView: UIViewControllerRepresentable {
         let controller = MainViewControllerKt.MainViewController()
         controller.view.backgroundColor = .soulNotePage
         paintWindowInPageInk()
+        // `updateUIViewController` is not guaranteed to run for the first rendered frame.
+        // Present after the controller has had a run-loop turn to attach to its window; iOS
+        // otherwise ignores the authorization request with no visible dialog.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {
+                _, _ in
+            }
+        }
         return controller
     }
 
@@ -63,10 +69,6 @@ private func paintWindowInPageInk() {
 
 @main
 struct iosApp: App {
-    init() {
-        configureFirebaseIfAvailable()
-    }
-
     var body: some Scene {
         WindowGroup {
             ComposeView()
@@ -88,20 +90,4 @@ struct iosApp: App {
                 .background(Color(uiColor: .soulNotePage))
         }
     }
-}
-
-/// Enables Firebase only for app builds that include the registered iOS configuration.
-///
-/// Local builds intentionally run without Firebase, so calling `FirebaseApp.configure()` when
-/// the plist is absent would turn the offline-first startup path into a configuration failure.
-/// The official Firebase plist keeps the iOS app identifier separate from the shared sync file.
-private func configureFirebaseIfAvailable() {
-    guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else {
-        return
-    }
-    guard FirebaseApp.app() == nil else { return }
-
-    FirebaseApp.configure()
-    Analytics.setAnalyticsCollectionEnabled(true)
-    Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
 }

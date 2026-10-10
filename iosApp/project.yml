@@ -22,13 +22,6 @@ settings:
     IPHONEOS_DEPLOYMENT_TARGET: "15.0"
     ENABLE_USER_SCRIPT_SANDBOXING: NO
 
-# Swift Package Manager is Firebase's supported dependency manager for new Apple-platform
-# integrations. The products remain inactive when GoogleService-Info.plist is not supplied.
-packages:
-  firebase-ios-sdk:
-    url: https://github.com/firebase/firebase-ios-sdk
-    from: "12.0.0"
-
 targets:
   iosApp:
     type: application
@@ -36,19 +29,16 @@ targets:
     deploymentTarget: "15.0"
     sources:
       - path: iosApp
-    dependencies:
-      - package: firebase-ios-sdk
-        product: FirebaseAnalytics
-      - package: firebase-ios-sdk
-        product: FirebaseCrashlytics
     info:
       path: iosApp/Info.plist
       properties:
-        CFBundleDisplayName: SoulNote
+        CFBundleDisplayName: Mooary
         CFBundleShortVersionString: "1.0.0"
         CFBundleVersion: "1"
         UILaunchScreen:
-          UIColorName: ""
+          # UIKit owns the first frame before Compose creates its PaperSurface. Matching the
+          # paper token prevents the default white launch view from flashing between app frames.
+          UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
@@ -69,12 +59,12 @@ targets:
         # ATS exceptions is deliberately NOT done: Ktor talks to Firebase over TLS and there
         # is no plain-HTTP endpoint anywhere in the project.
         ITSAppUsesNonExemptEncryption: false
-        NSPhotoLibraryUsageDescription: SoulNote needs access to your photos so you can set a profile picture.
-        NSCameraUsageDescription: SoulNote needs the camera so you can take a profile picture.
+        NSPhotoLibraryUsageDescription: Mooary needs access to your photos so you can set a profile picture.
+        NSCameraUsageDescription: Mooary needs the camera so you can take a profile picture.
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.arjun.soul_note
-        PRODUCT_NAME: SoulNote
+        PRODUCT_BUNDLE_IDENTIFIER: com.arjun.mooary
+        PRODUCT_NAME: Mooary
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         # Note the absence of CODE_SIGNING_ALLOWED here. It used to be "NO" for Debug with Release

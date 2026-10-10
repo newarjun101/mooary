@@ -31,10 +31,30 @@ firestore.rules.test
 # is safe to share is .firebaserc.example.
 .firebaserc
 .firebase/
+functions/lib/
+functions/node_modules/
 
 # iOS config, generated per developer from GoogleService-Info.plist and bundled into the app.
 /iosApp/**/FirebaseConfig.plist
 GoogleService-Info.plist
+
+# Local credentials and release-signing material. These values grant access or sign releases;
+# provide them through each developer's machine or GitHub Actions secrets, never Git.
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+*.cer
+signing.properties
+secrets.properties
+firebase-service-account*.json
+service-account*.json
+*serviceAccount*.json
+iosApp/GoogleService-Info.plist
 
 # iOS host app. iosApp.xcodeproj is generated from iosApp/project.yml by `xcodegen generate`,
 # so it is deliberately not committed; a merge conflict in a pbxproj is unreadable and the

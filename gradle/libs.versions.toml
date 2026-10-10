@@ -20,7 +20,7 @@ espresso = "3.7.0"
 firebaseMessaging = "24.1.2"
 firebaseBom = "35.0.0"
 firebaseCrashlyticsPlugin = "3.0.8"
-compottie = "2.0.0"
+compottie = "2.3.3"
 
 android-compileSdk = "37"
 android-minSdk = "24"

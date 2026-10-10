@@ -2,9 +2,7 @@
   "//": [
     "Deploy and emulator configuration for the Diary & Mood Tracker.",
     "",
-    "Rules and indexes are the only things this project deploys. There is no Hosting or",
-    "Functions target: the app talks to Firestore, Identity Toolkit and Storage directly over",
-    "their REST APIs.",
+    "The notification function converts a Firestore document into an FCM data message.",
     "",
     "Storage holds exactly one thing per account -- the profile photo under",
     "users/{uid}/avatar. Everything else stays on-device.",
@@ -18,6 +16,9 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "functions": {
+    "source": "functions"
   },
   "emulators": {
     "auth": {

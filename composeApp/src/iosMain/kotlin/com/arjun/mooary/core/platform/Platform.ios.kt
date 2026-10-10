@@ -1,0 +1,74 @@
+package com.arjun.mooary.core.platform
+
+import com.arjun.mooary.core.datetime.TimeZoneProvider
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.Foundation.NSBundle
+import platform.Foundation.NSDictionary
+import platform.Foundation.dictionaryWithContentsOfFile
+
+/**
+ * iOS platform configuration.
+ *
+ * The standard `GoogleService-Info.plist` in the app bundle supplies the credentials. It is
+ * git-ignored, so no key is ever committed. When the file is absent the app starts in
+ * offline-only mode, which is what makes the simulator and unit-test story possible.
+ */
+@OptIn(ExperimentalForeignApi::class)
+actual fun loadFirebaseConfig(): FirebaseConfig? {
+    val path = NSBundle.mainBundle.pathForResource(CONFIG_RESOURCE, ofType = CONFIG_TYPE)
+        ?: return null
+    // A property list maps to a Kotlin Map, so values are read by key rather than through
+    // NSDictionary's own accessors. The Objective-C class method hangs off the companion.
+    val plist: Map<Any?, *> = NSDictionary.dictionaryWithContentsOfFile(path) ?: return null
+
+    val apiKey = plist.string(KEY_API_KEY)
+    val projectId = plist.string(KEY_PROJECT_ID)
+    val appId = plist.string(KEY_APP_ID)
+    if (apiKey.isNullOrBlank() || projectId.isNullOrBlank() || appId.isNullOrBlank()) return null
+
+    return FirebaseConfig(
+        apiKey = apiKey,
+        projectId = projectId,
+        appId = appId,
+        authDomain = plist.string(KEY_AUTH_DOMAIN) ?: "$projectId.firebaseapp.com",
+        gcmSenderId = plist.string(KEY_GCM_SENDER_ID),
+        firestoreBaseUrl = plist.string(KEY_FIRESTORE_URL) ?: FIRESTORE_URL,
+        identityToolkitBaseUrl = plist.string(KEY_IDENTITY_URL) ?: IDENTITY_URL,
+        secureTokenBaseUrl = plist.string(KEY_SECURE_TOKEN_URL) ?: SECURE_TOKEN_URL,
+        storageBucket = plist.string(KEY_STORAGE_BUCKET),
+        isEmulator = (plist[KEY_EMULATOR] as? Number)?.toInt() == 1,
+    )
+}
+
+actual fun platformEnvironment(): PlatformEnvironment = IosEnvironment
+
+actual fun platformOperatingSystem(): String = "iOS"
+
+private object IosEnvironment : PlatformEnvironment {
+    override val environment: Environment
+        get() = Environment.DEVELOPMENT
+
+    override val timeZone: TimeZoneProvider = TimeZoneProvider()
+    override val appVersion: String = "1.0.0"
+    override val isDebugBuild: Boolean = true
+}
+
+private fun Map<Any?, *>.string(key: String): String? = (this[key] as? String)?.takeIf { it.isNotBlank() }
+
+private const val CONFIG_RESOURCE = "GoogleService-Info"
+private const val CONFIG_TYPE = "plist"
+
+private const val KEY_API_KEY = "API_KEY"
+private const val KEY_PROJECT_ID = "PROJECT_ID"
+private const val KEY_APP_ID = "GOOGLE_APP_ID"
+private const val KEY_AUTH_DOMAIN = "AUTH_DOMAIN"
+private const val KEY_GCM_SENDER_ID = "GCM_SENDER_ID"
+private const val KEY_FIRESTORE_URL = "FIRESTORE_BASE_URL"
+private const val KEY_IDENTITY_URL = "IDENTITY_BASE_URL"
+private const val KEY_SECURE_TOKEN_URL = "SECURE_TOKEN_BASE_URL"
+private const val KEY_STORAGE_BUCKET = "STORAGE_BUCKET"
+private const val KEY_EMULATOR = "EMULATOR"
+
+private const val FIRESTORE_URL = "https://firestore.googleapis.com/v1"
+private const val IDENTITY_URL = "https://identitytoolkit.googleapis.com/v1"
+private const val SECURE_TOKEN_URL = "https://securetoken.googleapis.com/v1"

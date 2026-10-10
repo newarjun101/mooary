@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>SoulNote</string>
+	<string>Mooary</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -25,13 +25,13 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>SoulNote needs the camera so you can take a profile picture.</string>
+	<string>Mooary needs the camera so you can take a profile picture.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>SoulNote needs access to your photos so you can set a profile picture.</string>
+	<string>Mooary needs access to your photos so you can set a profile picture.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
-		<string></string>
+		<string>LaunchBackground</string>
 	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

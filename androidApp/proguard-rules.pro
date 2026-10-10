@@ -13,16 +13,16 @@
 # kotlinx.serialization
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.**
--keepclassmembers class com.arjun.soul_note.** {
+-keepclassmembers class com.arjun.mooary.** {
     *** Companion;
 }
--keepclasseswithmembers class com.arjun.soul_note.** {
+-keepclasseswithmembers class com.arjun.mooary.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keep,includedescriptorclasses class com.arjun.soul_note.**$$serializer { *; }
+-keep,includedescriptorclasses class com.arjun.mooary.**$$serializer { *; }
 
 # SQLDelight generated code
--keep class com.arjun.soul_note.data.local.db.** { *; }
+-keep class com.arjun.mooary.data.local.db.** { *; }
 
 # Compose
 -dontwarn org.jetbrains.compose.**

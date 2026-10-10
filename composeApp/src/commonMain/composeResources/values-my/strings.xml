@@ -17,7 +17,7 @@
 
     <!-- Navigation -->
     <string name="nav_dashboard">အနှစ်ချုပ်</string>
-    <string name="app_name">SoulNote</string>
+    <string name="app_name">Mooary</string>
     <string name="nav_diary">နေ့စဉ်မှတ်တမ်း</string>
     <string name="nav_mood">ခံစားချက်</string>
     <string name="nav_calendar">ပြက္ခဒိန်</string>
@@ -57,25 +57,8 @@
     <string name="developer_email_url">mailto:newarjun101@gmail.com</string>
     <string name="developer_version">ဗားရှင်း</string>
     <string name="developer_version_value">1.0.0</string>
-    <string name="auth_title">သင့်နောက်တွဲ၊ သင့်စက်</string>
-    <string name="auth_create_account_title">အကောင့်ဖန်တီးပါ</string>
-    <string name="auth_welcome_back">ပြန်လည်ကြိုဆိုပါတယ်</string>
-    <string name="auth_have_account">အကောင့်ရှိပြီးသား</string>
-    <string name="auth_subtitle">မက်ခ်ဖွင့်ရန် မရွေးချယ်ပါက သင့်နောက်တွဲသည် သင့်စက်ထဲတွင်သာ ထားရှိပါမည်။</string>
-    <string name="auth_email">အီးမေးလ်</string>
-    <string name="auth_password">စကားဝှက်</string>
-    <string name="auth_confirm_password">စကားဝှက်ကို အတည်ပြုပါ</string>
-    <string name="auth_sign_in">ဝင်ရောက်ပါ</string>
-    <string name="auth_create_account">အကောင့်ဖန်တီးပါ</string>
-    <string name="auth_forgot_password">စကားဝှက် မေ့ပြန်ပြီးလား။</string>
-    <string name="auth_send_reset">ပြန်လည်သတ်မှတ်လင့် ပို့ပါ</string>
-    <string name="auth_reset_sent">ပြန်လည်သတ်မှတ်လင့်ကို သင့်အိမ်လို့စာတွဲတွင် ရှိပါမည်။</string>
-    <string name="auth_error_title">တစ်ခုခု မှားယွင်းသွားပါသော်လည်း</string>
-    <string name="auth_continue_offline">အကောင့်မရှိဘဲ ဆက်လက်ပါ</string>
-
     <!-- Dashboard -->
-    <string name="dashboard_offline_notice">ဤစက်တွင်သာ သိမ်းဆည်းထားပါသည်။ စက်အများအကြား တူညီစေရန် ဝင်ရောက်ပါ။</string>
-    <string name="dashboard_sign_in">ဝင်ရောက်ပါ</string>
+    <string name="dashboard_offline_notice">ဤစက်တွင်သာ သိမ်းဆည်းထားပါသည်။</string>
     <string name="dashboard_hello">မင်္ဂလာပါ၊ %1$s</string>
     <string name="dashboard_hello_no_name">မင်္ဂလာပါ</string>
     <string name="dashboard_streak">လက်ရှိဆက်တိုက်</string>
@@ -218,25 +201,15 @@
     <string name="profile_export_json">JSON တင်းဖိုင်ယူပါ</string>
     <string name="profile_export_csv">CSV တင်းဖိုင်ယူပါ</string>
     <string name="profile_export_saved">သိမ်းပြီး %1$s</string>
-    <string name="profile_account_section">အကောင့်</string>
     <string name="profile_on_device_title">စက်ထဲရှိ နောက်တွဲ</string>
-    <string name="profile_sign_out">ထွက်ပါ</string>
-    <string name="profile_sign_out_title">ထွက်မည်လား။</string>
-    <string name="profile_sign_out_body">သင့်မှတ်တမ်းများသည် ဤစက်ထဲတွင် ထားရှိပြီး ပြန်ဝင်ရောက်သည့်အခါ ပြန်လည်ပေါ်လာပါမည်။</string>
-    <string name="profile_delete_account">အကောင့်နှင့် ဒေတာအားလုံးကို ဖျက်ပါ</string>
-    <string name="profile_delete_title">အားလုံးကို ဖျက်မည်လား။</string>
-    <string name="profile_delete_body">ဤလျှင် သင့်အကောင့်၊ ဆာဗာထဲရှိ မှတ်တမ်းများနှင့် ဤစက်ထဲရှိ မိတ္တူကို ဖျက်ပါမည်။ ပြန်လည်ချောင့်ခြင်း မရပါ။</string>
-    <string name="profile_delete_confirm">ဖျက်ပါ</string>
-    <string name="profile_sign_in_prompt">ဝင်ရောက်ပါ သို့မဟုတ် အကောင့်ဖန်တီးပါ</string>
-    <string name="profile_cancel">ပယ်ဖျက်ပါ</string>
 
-    <!-- Reminders -->
-    <string name="reminder_diary_title">သင့်နေ့ဘယ်လိုရှိပါသနည်း။</string>
-    <string name="reminder_diary_body">ခဏမဟုတ် ရေးသားပါ။</string>
-    <string name="reminder_mood_title">ဘယ်လိုခံစားနေသနည်း။</string>
-    <string name="reminder_mood_body">လက်ညှိန်းတွင် မှတ်တမ်းတင်လိုက်ရုံတန်ပါပြီ။</string>
-    <string name="reminder_reflection_title">တစ်ပတ်တာ ရေးသားချိန်</string>
-    <string name="reminder_reflection_body">လွန်ခဲ့သော ရက်သတ္တပတ်ကို ပြန်ကြည့်ပါ။</string>
+    <!-- Reminders stay English across locales by product request. -->
+    <string name="reminder_diary_title">A little space for you</string>
+    <string name="reminder_diary_body">Your thoughts deserve a gentle place to land.</string>
+    <string name="reminder_mood_title">How is your heart today?</string>
+    <string name="reminder_mood_body">Pause, breathe, and name what you feel.</string>
+    <string name="reminder_reflection_title">A moment to look back</string>
+    <string name="reminder_reflection_body">Notice the small moments that made your week yours.</string>
 
     <!-- Mood catalogue -->
     <string name="mood_very_happy">အလွန်ပျော်ရွှင်</string>
@@ -300,37 +273,8 @@
     <string name="settings_display_name_label">နာမည်</string>
     <string name="settings_display_name_hint">အက်ပ်က နှိုက်ခေါ်ပုံစံ</string>
     <string name="settings_display_name_save">နာမည်သိမ်းမည်</string>
-    <string name="settings_photo_label">ပုံရိပ်</string>
-    <string name="settings_photo_change">ပုံပြောင်းမည်</string>
-    <string name="settings_photo_remove">ပုံဖျက်မည်</string>
-    <string name="settings_photo_uploading">ပုံတင်နေသည်</string>
-    <string name="settings_photo_content_description">ပရိုဖိုင်ပုံရိပ်</string>
-    <string name="settings_name_saved">နာမည်သိမ်းပြီးပါပြီ</string>
-    <string name="settings_photo_removed">ပုံဖျက်ပြီးပါပြီ</string>
-    <string name="settings_account_section">အကောင့်</string>
-    <string name="settings_local_only_note">အကောင့်မရှိဘဲ ဒီရောင်းကို အသုံးပြုနေသည်။ တစ်ခုလုံးချင်းစလုံးကို တစ်နေရာတည်းမှ သိမ်းဆည်းရန် ဝင်ရောက်ပါ</string>
-    <string name="settings_security_section">စလုံး</string>
-    <string name="settings_change_password">စလုံးပြောင်းမည်</string>
-    <string name="settings_current_password">လက်ရှိစလုံး</string>
-    <string name="settings_new_password">စလုံးအသစ်</string>
-    <string name="settings_confirm_password">စလုံးအသစ်အတည်ပြုမည်</string>
-    <string name="settings_password_changed">စလုံးပြောင်းပြီးပါပြီ</string>
-    <string name="settings_danger_section">အကောင့်</string>
-    <string name="settings_sign_out">ထွက်မည်</string>
-    <string name="settings_sign_out_confirm_title">ထွက်မည်လား</string>
-    <string name="settings_sign_out_confirm_body">သင့်မှတ်တမ်းများသည် ဤစက်ထဲတွင် ဆက်လက်နေပါမည်။ တစ်ခုလုံးချင်းစလုံးကို ပြန်လည်တစ်ခုလုံးချင်းစလုံးကို ထပ်မံဝင်ရောက်ရန် လိုအပ်ပါမည်</string>
-    <string name="settings_delete_account">အကောင့်နှင့်အချက်အလက်အားလုံး ဖျက်မည်</string>
-    <string name="settings_delete_confirm_title">အကောင့်ကို ဖျက်မည်လား</string>
-    <string name="settings_delete_confirm_body">ဤလုပ်မှုက သင့်ပရိုဖိုင်၊ မှတ်တမ်းအားလုံးနှင့် အကောင့်ကိုယ်တိုင်ကို ဖျက်ပစ်ပါမည်။ ပြန်လည်ပြုလုပ်၍မရ</string>
-    <string name="error_password_mismatch">စလုံးနှစ်ခု မတူညီပါ</string>
-    <string name="error_password_unchanged">ဤနေရာတွင် မသုံးခဲ့သေးသော စလုံးရွေးပါ</string>
-    <string name="error_weak_password">အနည်းဆုံး %1$d အလုံး သုံးပါ</string>
     <string name="error_title_too_long">ထဲ့နာမည် ရှည်လွန်းနေသည်</string>
-    <string name="error_storage_unavailable">ဤအကောင့်တွင် ဓာတ်ပုံသိုလှောင်ခန်း မရှိပါ။</string>
-    <string name="error_photo_empty">ထိုဖိုင်တွင် ပုံအချက်အလက် မပါပါ။</string>
-    <string name="error_photo_too_large">ထိုပုံသည် 5 MB ထက်ကြီးလွန်သည်။</string>
     <string name="error_network">အင်တာနက်ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်စမ်းပါ။</string>
-    <string name="error_authentication">အကောင့်ကို အတည်ပြုမရပါ။ ထပ်မံဝင်ရောက်ပါ။</string>
     <string name="error_permission_denied">ဤလုပ်ဆောင်ချက်အတွက် ခွင့်ပြုချက် မရှိပါ။</string>
     <string name="error_not_found">ဤအရာကို မရရှိနိုင်တော့ပါ။</string>
     <string name="error_validation">ဖြည့်ထားသော အချက်အလက်ကို စစ်ဆေးပြီး ထပ်စမ်းပါ။</string>

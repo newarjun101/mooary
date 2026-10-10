@@ -80,7 +80,7 @@ abstract class StageComposeResources : DefaultTask() {
 val composeResourceSourceSet = "commonMain"
 
 /** Must match the package the Compose resource accessors are generated into. */
-val composeResourcePackage = "com.arjun.soul_note.resources"
+val composeResourcePackage = "com.arjun.mooary.resources"
 
 val stageComposeResourcesAssets = tasks.register<StageComposeResources>("stageComposeResourcesAssets") {
     group = "compose resources"
@@ -160,6 +160,9 @@ abstract class GenerateFirebaseConfig : DefaultTask() {
     @get:Input
     abstract val pushEnabled: Property<Boolean>
 
+    @get:Input
+    abstract val applicationPackage: Property<String>
+
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -185,12 +188,16 @@ abstract class GenerateFirebaseConfig : DefaultTask() {
         }
 
         val projectInfo = root["project_info"] as? Map<*, *> ?: emptyMap<Any, Any>()
-        // The console emits one `client` entry per platform; the Android entry is the only
-        // one this app can use, and picking by `client_info.android_client_info` is what keeps
-        // the task correct for a project that also has an iOS app registered.
+        // A config can include several Android apps. Choosing the first one binds a renamed
+        // package to the old Firebase app without any build error, so require the declared
+        // application package instead.
         val androidClient = (root["client"] as? List<*>)
             ?.filterIsInstance<Map<*, *>>()
-            ?.firstOrNull { (it["client_info"] as? Map<*, *>)?.get("android_client_info") != null }
+            ?.firstOrNull {
+                val clientInfo = it["client_info"] as? Map<*, *> ?: return@firstOrNull false
+                val androidInfo = clientInfo["android_client_info"] as? Map<*, *>
+                androidInfo?.get("package_name") == applicationPackage.get()
+            }
             ?: (root["client"] as? Map<*, *>)
             ?: emptyMap<Any, Any>()
 
@@ -203,9 +210,9 @@ abstract class GenerateFirebaseConfig : DefaultTask() {
 
         if (apiKey.isNullOrBlank() || appId.isNullOrBlank() || projectId.isNullOrBlank()) {
             logger.warn(
-                "google-services.json at $source has no Android client with api_key and " +
-                    "mobilesdk_app_id; building without Firebase. " +
-                    "Check the project has a registered Android app."
+                "google-services.json at $source has no Android client for " +
+                    "${applicationPackage.get()} with api_key and mobilesdk_app_id; " +
+                    "building without Firebase."
             )
             target.delete()
             // The generated strings have to go too. Left in place they satisfy the manifest's
@@ -273,7 +280,8 @@ val generateFirebaseConfig = tasks.register<GenerateFirebaseConfig>("generateFir
     description = "Generates res/raw/firebase_config.json from google-services.json."
     googleServices.from(rootProject.layout.projectDirectory.file("google-services.json"))
     emulator.set(providers.gradleProperty("diary.firebaseEmulator").orNull?.toBoolean() ?: false)
-    pushEnabled.set(providers.gradleProperty("diary.firebaseMessaging").orNull?.toBoolean() ?: false)
+    pushEnabled.set(providers.gradleProperty("diary.firebaseMessaging").orNull?.toBoolean() ?: true)
+    applicationPackage.set("com.arjun.mooary")
     outputDir.set(layout.buildDirectory.dir("generated/firebaseConfig"))
 }
 
@@ -295,12 +303,12 @@ androidComponents {
 }
 
 android {
-    namespace = "com.arjun.soul_note.app"
+    namespace = "com.arjun.mooary.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId = "com.arjun.soul_note"
+        applicationId = "com.arjun.mooary"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -311,7 +319,7 @@ android {
         // element present either way means the manifest does not change shape between the two
         // builds, and `android:enabled` is the only thing the system consults.
         manifestPlaceholders["fcmEnabled"] =
-            providers.gradleProperty("diary.firebaseMessaging").orNull?.toBoolean() ?: false
+            providers.gradleProperty("diary.firebaseMessaging").orNull?.toBoolean() ?: true
     }
 
     androidResources {

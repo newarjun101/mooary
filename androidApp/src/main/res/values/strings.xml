@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SoulNote</string>
+    <string name="app_name">Mooary</string>
 
     <!--
         The channel a pushed message is posted on, and the channel the messaging SDK is told
